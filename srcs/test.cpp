@@ -186,18 +186,20 @@ int main(int argc, char **argv)
 			}
 		}
 
-		if ( poll_fds[client_index].revents & POLLIN ) {
+		if ( poll_fds[client_index].revents & POLLIN && srv->user( client_index )->isDead == false ) {
 			
 			int bytesRecv = recv( poll_fds[client_index].fd, buff, 4096, 0);
 			if ( bytesRecv < 0 ) {
 
-				std::cerr << "Error : cannot read client " << client_index << std::endl;
-				return ( EXIT_FAILURE );
-			} else {
+				std::cout << " Client " << client_index << " disconected" << std::endl;
+				srv->user( client_index )->isDead = true;
+			} else if ( bytesRecv != 0 ) {
 				
 				std::string strBuff = std::string( buff, 0, bytesRecv );
 				std::cout << "Received : [" << strBuff << "] from user " << client_index <<std::endl;
 				srv->user( client_index )->appendBuff( strBuff );
+			} else {
+				srv->user( client_index )->isDead = true;
 			}
 		}
 		

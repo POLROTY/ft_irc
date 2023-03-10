@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:22:40 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/09 02:02:33 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/10 15:30:23 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ User::User( int fd ) {
 	this->_fd = fd;
 	this->isUserSet = false;
 	this->_isPasswordChecked = false;
+	this->isDead = false;
 	return;
 }
 

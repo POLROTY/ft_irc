@@ -19,5 +19,6 @@
 
 #define ERR_PASSWDMISMATCH(user) (":" + user->getName() + " 464 " + user->getNick() + " :" + user->getHost() + " PASSWORD MISSMATCH\n")
 
+#define ERR_NICKNAMEINUSE(user, nick) (":" + user->getName() + " 433 ERROR " + nick + " : already in use !" + "\n")
 
 #endif

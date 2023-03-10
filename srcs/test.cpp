@@ -66,6 +66,7 @@ void stream( int client_index, Server & srv ) {
 				if ( user->getNick() != word ) {
 
 					std::string str = NICK( user, word );
+					
 					user->setNick( word );
 					send( user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL );
 				}

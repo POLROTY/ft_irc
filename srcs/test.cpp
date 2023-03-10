@@ -40,6 +40,19 @@ void check_de_la_street( User *user ) {
 	send( user->getFd(), RPL_MYINFO(user).c_str(), RPL_MYINFO(user).length(), MSG_NOSIGNAL );
 }
 
+bool nickInUse( std::string nickToCheck, Server & srv ) {
+
+	std::list< User * >::iterator it = srv.users.begin();
+	std::list< User * >::iterator ite = srv.users.end();
+	while ( it != ite ) {
+		
+		if ( nickToCheck == (*it)->getNick() )
+			return ( true );
+		it++;
+	}
+	return ( false );
+}
+
 void stream( int client_index, Server & srv ) {
 	
 	User * user = srv.user( client_index );
@@ -62,14 +75,16 @@ void stream( int client_index, Server & srv ) {
 		if ( word == "NICK") {
 
 			if ( iss >> word ) {
+				std::string str;
+				if ( nickInUse( word,  srv )) {
 
-				if ( user->getNick() != word ) {
+					str = ERR_NICKNAMEINUSE( user, word );
+				} else {
 
-					std::string str = NICK( user, word );
-					
 					user->setNick( word );
-					send( user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL );
+					str = NICK( user, word );
 				}
+				send( user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL );
 			}
 		}else if ( word == "PING") {
 
@@ -187,24 +202,24 @@ int main(int argc, char **argv)
 			}
 		}
 
-		if ( poll_fds[client_index].revents & POLLIN && srv->user( client_index )->isDead == false ) {
+		if ( poll_fds[client_index].revents & POLLIN && srv->user( client_index )->isAlive ) {
 			
 			int bytesRecv = recv( poll_fds[client_index].fd, buff, 4096, 0);
 			if ( bytesRecv < 0 ) {
 
 				std::cout << " Client " << client_index << " disconected" << std::endl;
-				srv->user( client_index )->isDead = true;
+				srv->user( client_index )->isAlive = false;
 			} else if ( bytesRecv != 0 ) {
 				
 				std::string strBuff = std::string( buff, 0, bytesRecv );
 				std::cout << "Received : [" << strBuff << "] from user " << client_index <<std::endl;
 				srv->user( client_index )->appendBuff( strBuff );
 			} else {
-				srv->user( client_index )->isDead = true;
+				srv->user( client_index )->isAlive = false;
 			}
 		}
 		
-		if ( !srv->users.empty() ) {
+		if ( !srv->users.empty() && srv->user( client_index )->isAlive ) {
 			stream( client_index, *srv );
 		}
 

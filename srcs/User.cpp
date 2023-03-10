@@ -6,11 +6,12 @@
 /*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:22:40 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/10 15:30:23 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/10 16:17:44 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/User.hpp"
+#include "../includes/macro.hpp"
 
 User::User( void ) {
 
@@ -22,7 +23,7 @@ User::User( int fd ) {
 	this->_fd = fd;
 	this->isUserSet = false;
 	this->_isPasswordChecked = false;
-	this->isDead = false;
+	this->isAlive = true;
 	return;
 }
 
@@ -113,6 +114,11 @@ void	User::initUser( std::string password ) {
 
 				if ( word == password )
 					this->_isPasswordChecked = true;
+				else {
+					this->isAlive = false;
+					std::string msg = ERR_PASSWDMISMATCH( this );
+					send( this->_fd, msg.c_str(), msg.length(), MSG_NOSIGNAL );
+				}
 			}
 		}		 
 		if ( word == "USER" ) {

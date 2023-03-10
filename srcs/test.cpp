@@ -34,10 +34,10 @@ bool	arguments_check( int argc, char *str ) {
 void check_de_la_street( User *user ) {
 	
 	user->printInfo();
-    send( user->getFd(), RPL_WELCOME(*user).c_str(), RPL_WELCOME(*user).length(), MSG_NOSIGNAL );
-	send( user->getFd(), RPL_YOURHOST(*user).c_str(), RPL_YOURHOST(*user).length(), MSG_NOSIGNAL );
-	send( user->getFd(), RPL_CREATED(*user).c_str(), RPL_CREATED(*user).length(), MSG_NOSIGNAL );
-	send( user->getFd(), RPL_MYINFO(*user).c_str(), RPL_MYINFO(*user).length(), MSG_NOSIGNAL );
+    send( user->getFd(), RPL_WELCOME(user).c_str(), RPL_WELCOME(user).length(), MSG_NOSIGNAL );
+	send( user->getFd(), RPL_YOURHOST(user).c_str(), RPL_YOURHOST(user).length(), MSG_NOSIGNAL );
+	send( user->getFd(), RPL_CREATED(user).c_str(), RPL_CREATED(user).length(), MSG_NOSIGNAL );
+	send( user->getFd(), RPL_MYINFO(user).c_str(), RPL_MYINFO(user).length(), MSG_NOSIGNAL );
 }
 
 void stream( int client_index, Server & srv ) {
@@ -65,7 +65,7 @@ void stream( int client_index, Server & srv ) {
 
 				if ( user->getNick() != word ) {
 
-					std::string str = NICK( *user, word );
+					std::string str = NICK( user, word );
 					user->setNick( word );
 					send( user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL );
 				}
@@ -73,7 +73,7 @@ void stream( int client_index, Server & srv ) {
 		}else if ( word == "PING") {
 
 			if ( iss >> word ) {
-				std::string str = PONG( *user );
+				std::string str = PONG( user );
 				send( user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL );
 				std::cerr << str << std::endl;
 			}

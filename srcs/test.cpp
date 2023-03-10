@@ -1,5 +1,5 @@
 
-
+#include "../includes/macro.hpp"
 #include "../includes/irc.hpp"
 #include "../includes/User.hpp"
 
@@ -30,50 +30,14 @@ bool	arguments_check( int argc, char *str ) {
 	return ( EXIT_SUCCESS );
 }
 
-std::string RPL_WELCOME( User & user ) {
-	
-	return ( ":" + user.getName() + " 001 " + user.getNick() + " :Welcome to the Internet Relay Network " + user.getName() + "\n" );
-} 
-
-std::string RPL_YOURHOST( User & user ) { 
-	
-	return ( ":" + user.getName() + " 002 " + user.getNick() + " :Your host is " + user.getHost() + ", running version 42\n" );
-}
-
-std::string RPL_CREATED( User & user ) { 
-	
-	return ( ":" + user.getName() + " 003 " + user.getNick() + " :This server was created at saint Gliglin\n" );
-}
-
-std::string RPL_MYINFO( User & user ) {
-	
-	return ( ":" + user.getName() + " 002 " + user.getNick() + " :" + user.getHost() + " 42 iwso ntio\n" );
-}
-
-std::string NICK( User & user, std::string nick ) {
-	
-	return ( ":" + user.getName() + " NICK " + nick + "\n");
-}
-
-std::string PONG( User & user ) {
-	
-	return ( ":" + user.getName() + " PONG " + user.getHost() + "\n");
-}
-
-std::string ERR_PASSWDMISMATCH( User & user ) {
-
-
-	
-	return ( ":" + user.getName() + " 464 " + user.getNick() + " :" + user.getHost() + " PASSWORD MISSMATCH\n" );
-}
 
 void check_de_la_street( User *user ) {
-
+	
 	user->printInfo();
-    send( user->getFd(), RPL_WELCOME( *user ).c_str(), RPL_WELCOME( *user ).length(), MSG_NOSIGNAL );
-	send( user->getFd(), RPL_YOURHOST( *user ).c_str(), RPL_YOURHOST( *user ).length(), MSG_NOSIGNAL );
-	send( user->getFd(), RPL_CREATED( *user ).c_str(), RPL_CREATED( *user ).length(), MSG_NOSIGNAL );
-	send( user->getFd(), RPL_MYINFO( *user ).c_str(), RPL_MYINFO( *user ).length(), MSG_NOSIGNAL );
+    send( user->getFd(), RPL_WELCOME(user).c_str(), RPL_WELCOME(user).length(), MSG_NOSIGNAL );
+	send( user->getFd(), RPL_YOURHOST(user).c_str(), RPL_YOURHOST(user).length(), MSG_NOSIGNAL );
+	send( user->getFd(), RPL_CREATED(user).c_str(), RPL_CREATED(user).length(), MSG_NOSIGNAL );
+	send( user->getFd(), RPL_MYINFO(user).c_str(), RPL_MYINFO(user).length(), MSG_NOSIGNAL );
 }
 
 void stream( int client_index, Server & srv ) {
@@ -101,7 +65,7 @@ void stream( int client_index, Server & srv ) {
 
 				if ( user->getNick() != word ) {
 
-					std::string str = NICK( *user, word );
+					std::string str = NICK( user, word );
 					user->setNick( word );
 					send( user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL );
 				}
@@ -109,7 +73,7 @@ void stream( int client_index, Server & srv ) {
 		}else if ( word == "PING") {
 
 			if ( iss >> word ) {
-				std::string str = PONG( *user );
+				std::string str = PONG( user );
 				send( user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL );
 				std::cerr << str << std::endl;
 			}

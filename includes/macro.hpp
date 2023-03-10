@@ -21,4 +21,6 @@
 
 #define ERR_NICKNAMEINUSE(user, nick) (":" + user->getName() + " 433 ERROR " + nick + " : already in use !" + "\n")
 
+#define ERR_NOTIMPLEMENTED(word) (": 449 : " + word + " command not implemented\n")
+
 #endif

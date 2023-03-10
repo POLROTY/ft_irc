@@ -80,8 +80,9 @@ void stream( int client_index, Server & srv ) {
 			}
 		} else {
 
-			std::string str = ":" + user->getName() + " 404 " + user->getNick() + " :" + user->getHost() + " UNKNOWN COMMAND YET\n" ;
-			send( user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL );
+			// std::string str = ":" + user->getName() + " 404 " + user->getNick() + " :" + user->getHost() + " UNKNOWN COMMAND YET\n" ;
+			// send( user->getFd(), str.c_str(), str.length(), ERR_NOTIMPLEMENTED );
+			send(user->getFd(),  ERR_NOTIMPLEMENTED(word).c_str(), ERR_NOTIMPLEMENTED(word).length(), MSG_NOSIGNAL);
 		}
 		user->setBuff( user->getBuff().erase( 0, pos + 1 ) );
 	}

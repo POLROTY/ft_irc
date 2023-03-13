@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/09 16:54:21 by hspriet          ###   ########.fr       */
+/*   Updated: 2023/03/13 17:23:33 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,15 +28,15 @@ Server::Server( const Server & to_copy ) {
 
 Server &Server::operator=( const Server & toTheRight ) {
 	
-	if ( this == &toTheRight )
-		return ( *this );
+	if (this == &toTheRight)
+		return (*this);
 	
 	this->_password = toTheRight._password;
 	this->_hostName = toTheRight._hostName;
 	this->_socket = toTheRight._socket;
 	this->users = toTheRight.users;
 	
-	return ( *this );
+	return (*this);
 }
 
 Server::~Server( void ) {
@@ -46,12 +46,12 @@ Server::~Server( void ) {
 
 std::string Server::getPassword( void ) const {
 	
-	return ( this->_password );
+	return (this->_password);
 }
 
 std::string Server::getHostName( void ) const {
 	
-	return ( this->_hostName );
+	return (this->_hostName);
 }
 
 Server::Server( std::string const hostName, std::string const password, int fd ) {
@@ -68,12 +68,12 @@ User * Server::user( int userIndex ) {
 
 	std::list< User * >::iterator it = this->users.begin();
 	std::list< User * >::iterator ite = this->users.end();
-	while ( index != userIndex ) {
+	while (index != userIndex) {
 		
 		index++;
 		it++;
-		if ( it == ite)
+		if (it == ite)
 			std::cerr << "Error : User in Server ite problem" << std::endl;
 	}
-	return ( *it );
+	return (*it);
 }

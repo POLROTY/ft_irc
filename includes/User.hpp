@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:18:45 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/10 16:09:03 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/13 17:22:56 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,54 +20,36 @@
 class User {
 	
 	public:
-
 		//canon
 		User( const User & to_copy );
 		User & operator=( const User & toTheRight );
 		~User( void );
-
 		User( int clientSocket );
 
-		void printInfo();
-
-
+		void 		printInfo();
 		std::string getName( void ) const;
 		std::string getHost( void ) const;
-		int			getFd( void ) const;
-		
+		int			getFd( void ) const;	
 		void		setNick( std::string nick );
 		std::string getNick( void ) const;		
-		
 		std::string	getBuff( void ) const;
 		void		setBuff( std::string buff );
 		void		appendBuff( std::string buff );
-
 		void		initUser( std::string password ); 
-		
-		bool		isUserSet;
 
+		bool		isUserSet;
 		bool		isAlive;
 		
 	private:
-
 		//canon
 		User( void );
 
-		
-		std::string _nick;
-		
+		std::string _nick;		
 		std::string _name;
-
 		std::string _host;
-
 		std::string _buff;
-
 		bool _isPasswordChecked;
-		
 		int _fd;
-
-		
-
 		int _mode;
 };
 

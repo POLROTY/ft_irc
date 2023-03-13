@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:22:40 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/10 16:17:44 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/13 17:29:34 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,23 +27,23 @@ User::User( int fd ) {
 	return;
 }
 
-User::User(const User & to_copy) {
+User::User( const User & to_copy ) {
 	
 	*this = to_copy;
 	return;
 }
 
-User &User::operator=(const User & toTheRight)
+User &User::operator=( const User & toTheRight )
 {
-	if ( this == &toTheRight )
-		return ( *this );
+	if (this == &toTheRight)
+		return (*this);
 		
 	this->_fd = toTheRight._fd;
 	this->_nick = toTheRight._nick;
 	this->_name = toTheRight._name;
 	this->_mode = toTheRight._mode;
 	this->_host = toTheRight._host;
-	return ( *this );
+	return (*this);
 }
 
 User::~User( void ) {
@@ -58,17 +58,17 @@ void User::printInfo( void ) {
 
 std::string User::getNick( void ) const {
 
-	return ( this->_nick );
+	return (this->_nick);
 }
 
 int User::getFd( void ) const {
 
-	return ( this->_fd );
+	return (this->_fd);
 }
 
 std::string User::getName( void ) const {
 
-	return ( this->_nick + "!" + this->_name + "@" + this->_host );
+	return (this->_nick + "!" + this->_name + "@" + this->_host);
 }
 
 void User::setNick( std::string nick ) {
@@ -78,23 +78,23 @@ void User::setNick( std::string nick ) {
 
 std::string User::getHost( void ) const {
 
-	return ( this->_host );
+	return (this->_host);
 }
 
 void User::appendBuff( std::string str ) {
 	
-	if ( this->_buff.empty() ) {
+	if (this->_buff.empty()) {
 
 		this->_buff = str;
 	} else {
 		
-		this->_buff.append( str.c_str() );
+		this->_buff.append(str.c_str());
 	}
 }
 
 std::string User::getBuff( void ) const {
 
-	return ( this->_buff );
+	return (this->_buff);
 }
 
 void	User::setBuff( std::string newBuff ) {
@@ -104,39 +104,41 @@ void	User::setBuff( std::string newBuff ) {
 
 void	User::initUser( std::string password ) {
 
-	std::istringstream iss( this->getBuff() );
+	std::istringstream iss(this->getBuff());
     std::string word;
-	while ( iss >> word ) {
+	while (iss >> word) {
 		
-		if ( word == "PASS" ) {
+		if (word == "PASS") {
 			
-			if ( iss >> word ) {
+			if (iss >> word) {
 
-				if ( word == password )
+				if (word == password)
 					this->_isPasswordChecked = true;
 				else {
 					this->isAlive = false;
-					std::string msg = ERR_PASSWDMISMATCH( this );
-					send( this->_fd, msg.c_str(), msg.length(), MSG_NOSIGNAL );
+					std::string msg = ERR_PASSWDMISMATCH(this);
+					send(this->_fd, msg.c_str(), msg.length(), MSG_NOSIGNAL);
 				}
 			}
 		}		 
-		if ( word == "USER" ) {
+		else if (word == "USER") {
 			
-			if ( !this->_isPasswordChecked )
+			if (!this->_isPasswordChecked)
 				break;
-			if ( iss >> word )
+			if (iss >> word)
+			{
 				this->_nick = word;
-			if ( iss >> word )
-				this->_name = word;
-			if ( iss >> word ) {
+				if (iss >> word)
+					this->_name = word;
+				if (iss >> word) {
 				
 				this->_host = word;
 				this->isUserSet = true;
-				this->_buff.erase( 0, 1 + _buff.find( '\r', _buff.find( _host.c_str() ) ) );
+				this->_buff.erase(0, 1 + _buff.find('\r', _buff.find(_host.c_str())));
 				return;
+				}
 			}
 		}
 	}
-	this->_buff.erase( this->_buff.length() );
+	this->_buff.erase(this->_buff.length());
 }

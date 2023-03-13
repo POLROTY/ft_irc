@@ -1,8 +1,9 @@
 NAME		= ircserv
 
-SRC			= test.cpp \
+SRC			= main.cpp \
 			  User.cpp \
-			  Server.cpp
+			  Server.cpp \
+			  utils.cpp
 
 SRCSPATH 	= srcs
 

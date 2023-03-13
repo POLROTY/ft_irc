@@ -6,7 +6,7 @@
 /*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:18:45 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/13 17:22:56 by nfascia          ###   ########.fr       */
+/*   Updated: 2023/03/13 17:44:18 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,9 @@ class User {
 		std::string _name;
 		std::string _host;
 		std::string _buff;
-		bool _isPasswordChecked;
-		int _fd;
-		int _mode;
+		bool 		_isPasswordChecked;
+		int 		_fd;
+		int 		_mode;
 };
 
 #endif

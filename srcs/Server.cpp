@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
+/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/13 18:31:10 by nfascia          ###   ########.fr       */
+/*   Updated: 2023/03/15 17:06:46 by hspriet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,20 @@ User * Server::user( int userIndex ) {
 			std::cerr << "Error : User in Server ite problem" << std::endl;
 	}
 	return (*it);
+}
+
+std::list< Channel * >::iterator Server::find_channel( std::string channel_name ) {
+	
+
+	std::list< Channel * >::iterator it = this->channels.begin();
+	std::list< Channel * >::iterator ite = this->channels.end();
+	while (it != ite) {
+		Channel * tmp = *it;
+		if ( tmp->getName() == channel_name )
+			return ( it );
+		it++;
+	}
+	return (it);
 }
 
 
@@ -180,7 +194,22 @@ void stream( int client_index, Server & srv ) {
 				send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
 				std::cerr << str << std::endl;
 			}
-		} else {
+		}
+		else if (word == "JOIN") {
+			
+				iss >> word;
+				std::list<Channel*>::iterator it = srv.find_channel( word );
+				if (it == srv.channels.end() || srv.channels.empty())
+				{	
+					srv.channels.push_back(new Channel(word, user));
+					std::cerr << "User " << user->getNick() << " created channel " << word << std::endl;
+				} else {
+					Channel * tmp = *it;
+					tmp->join( user );
+					std::cerr << "User " << user->getNick() << " was added to channel " << tmp->getName() << std::endl;
+				}
+		}
+		else {
 
 			// std::string str = ":" + user->getName() + " 404 " + user->getNick() + " :" + user->getHost() + " UNKNOWN COMMAND YET\n" ;
 			// send( user->getFd(), str.c_str(), str.length(), ERR_NOTIMPLEMENTED );
@@ -188,6 +217,7 @@ void stream( int client_index, Server & srv ) {
 		}
 		user->setBuff(user->getBuff().erase( 0, pos + 1 ));
 	}
+
 }
 
 int	server_loop(Server *srv, sockaddr_in serverAddress)

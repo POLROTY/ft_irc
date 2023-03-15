@@ -3,7 +3,8 @@ NAME		= ircserv
 SRC			= main.cpp \
 			  User.cpp \
 			  Server.cpp \
-			  utils.cpp
+			  utils.cpp \
+			  Channel.cpp
 
 SRCSPATH 	= srcs
 

@@ -4,7 +4,9 @@ SRC			= main.cpp \
 			  User.cpp \
 			  Server.cpp \
 			  utils.cpp \
-			  Channel.cpp
+			  Channel.cpp \
+			  EXECUTE.cpp \
+			  NICK.cpp
 
 SRCSPATH 	= srcs
 

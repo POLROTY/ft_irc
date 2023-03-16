@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   irc.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:19:21 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/15 15:25:44 by hspriet          ###   ########.fr       */
+/*   Updated: 2023/03/15 21:59:06 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,13 +31,25 @@
 #include <list>
 #include <sstream>
 #include <algorithm>
+
 ////////// class ////////// 
 #include "Server.hpp"
 #include "User.hpp"
 #include "macro.hpp"
+class Server;
 
 ////////// utils //////////
+
 bool	is_string_digit( char *str );
 bool	arguments_check( int argc, char *str );
+
+/////////// FUNCTIONS IN SRCS/COMMANDS/NICK.CPP //////////
+
+bool	isValidNickname( const std::string & nickname );
+bool	nickInUse( std::string nickToCheck, Server & srv );
+
+/////////// FUNCTIONS IN SRCS/EXECUTE.CPP //////////
+
+void	stream( int client_index, Server & srv ); 
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/15 17:06:46 by hspriet          ###   ########.fr       */
+/*   Updated: 2023/03/15 21:53:38 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,25 +119,6 @@ void		Server::setPollfd( int index, int fd_value, int events_value, int revents_
 
 ////////// functions //////////
 
-bool nickInUse( std::string nickToCheck, Server & srv ) {
-	std::list< User * >::iterator it = srv.users.begin();
-	std::list< User * >::iterator ite = srv.users.end();
-	while (it != ite) {
-		
-		if (nickToCheck == (*it)->getNick())
-			return (true);
-		it++;
-	}
-	return (false);
-}
-
-void handshake( User *user ) {
-	user->printInfo();
-    send(user->getFd(), RPL_WELCOME(user).c_str(), RPL_WELCOME(user).length(), MSG_NOSIGNAL);
-	send(user->getFd(), RPL_YOURHOST(user).c_str(), RPL_YOURHOST(user).length(), MSG_NOSIGNAL);
-	send(user->getFd(), RPL_CREATED(user).c_str(), RPL_CREATED(user).length(), MSG_NOSIGNAL);
-	send(user->getFd(), RPL_MYINFO(user).c_str(), RPL_MYINFO(user).length(), MSG_NOSIGNAL);
-}
 
 int	bind_and_listen( sockaddr_in serverAddress, int listening, int port ) {
 	serverAddress.sin_family = AF_INET;
@@ -153,71 +134,6 @@ int	bind_and_listen( sockaddr_in serverAddress, int listening, int port ) {
 		return (EXIT_FAILURE);
 	}
 	return (0);
-}
-
-void stream( int client_index, Server & srv ) {
-	User * user = srv.user(client_index);
-
-	size_t pos = user->getBuff().find('\r');
-	if (pos == std::string::npos)
-		return;
-	if (!user->isUserSet) {
-
-		user->initUser(srv.getPassword());
-		if (user->isUserSet)
-			handshake(user);
-		return;
-	}
-	std::istringstream iss(user->getBuff());
-    std::string word;
-
-	if (iss >> word) {
-		
-		if (word == "NICK") {
-
-			if (iss >> word) {
-				std::string str;
-				if (nickInUse(word,  srv)) {
-
-					str = ERR_NICKNAMEINUSE(user, word);
-				} else {
-
-					user->setNick(word);
-					str = NICK(user, word);
-				}
-				send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
-			}
-		} else if (word == "PING") {
-
-			if (iss >> word) {
-				std::string str = PONG(user);
-				send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
-				std::cerr << str << std::endl;
-			}
-		}
-		else if (word == "JOIN") {
-			
-				iss >> word;
-				std::list<Channel*>::iterator it = srv.find_channel( word );
-				if (it == srv.channels.end() || srv.channels.empty())
-				{	
-					srv.channels.push_back(new Channel(word, user));
-					std::cerr << "User " << user->getNick() << " created channel " << word << std::endl;
-				} else {
-					Channel * tmp = *it;
-					tmp->join( user );
-					std::cerr << "User " << user->getNick() << " was added to channel " << tmp->getName() << std::endl;
-				}
-		}
-		else {
-
-			// std::string str = ":" + user->getName() + " 404 " + user->getNick() + " :" + user->getHost() + " UNKNOWN COMMAND YET\n" ;
-			// send( user->getFd(), str.c_str(), str.length(), ERR_NOTIMPLEMENTED );
-			send(user->getFd(),  ERR_NOTIMPLEMENTED(word).c_str(), ERR_NOTIMPLEMENTED(word).length(), MSG_NOSIGNAL);
-		}
-		user->setBuff(user->getBuff().erase( 0, pos + 1 ));
-	}
-
 }
 
 int	server_loop(Server *srv, sockaddr_in serverAddress)

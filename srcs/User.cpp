@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:22:40 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/13 18:28:59 by nfascia          ###   ########.fr       */
+/*   Updated: 2023/03/16 00:14:28 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,10 @@ User::User( void ) {
 User::User( int fd ) {
 	this->_fd = fd;
 	this->isUserSet = false;
-	this->_isPasswordChecked = false;
+	this->isIrssi = false;
+	this->isPasswordChecked = false;
 	this->isAlive = true;
+	this->_host = "localhost";
 	return;
 }
 
@@ -56,45 +58,71 @@ void User::appendBuff( std::string str ) {
 	}
 }
 
-void	User::initUser( std::string password ) {
-	std::istringstream iss(this->getBuff());
-    std::string word;
-	while (iss >> word) {
-		
-		if (word == "PASS") {
-			
-			if (iss >> word) {
+// void	User::initUser( std::string password ) {
 
-				if (word == password)
-					this->_isPasswordChecked = true;
-				else {
-					this->isAlive = false;
-					std::string msg = ERR_PASSWDMISMATCH(this);
-					send(this->_fd, msg.c_str(), msg.length(), MSG_NOSIGNAL);
-				}
-			}
-		}		 
-		else if (word == "USER") {
+// 	std::string::size_type pos = this->getBuff().find_first_of('\n');
+// 	std::string command = this->getBuff().substr(0, pos);
+// 	this->setBuff( this->getBuff().erase(0, pos + 1) );
+	
+// 	std::istringstream iss( command );
+//     std::string word;
+// 	iss >> word;
+	
+// 	std::cerr << word << std::endl;
+	
+// 	if ( word == "CAP" && !this->_isPasswordChecked ) {
+// 		iss >> word;
+// 		if ( word == "LS" )
+// 			this->isIrssi = true;
+// 	} else if ( word == "PASS" ) {
+		
+// 			if ( word == password )
+// 				this->_isPasswordChecked = true;
+// 				std::cerr << "A user got password right" << std::endl;
+// 			else {
+// 				if ( this->isIrssi )
+// 					this->isAlive = false;
+// 				std::string msg = ERR_PASSWDMISMATCH(this);
+// 				send(this->_fd, msg.c_str(), msg.length(), MSG_NOSIGNAL);
+// 			}
+// 		}
+// 	} else if (word == "NICK") {
+		
+// 		if (!this->_isPasswordChecked)
+// 			break;
+// 		if (iss >> word) {
+// 				std::string str;
+// 				if (nickInUse(word,  srv)) {
+
+// 					str = ERR_NICKNAMEINUSE(user, word);
+// 				} else {
+
+// 					user->setNick(word);
+// 					str = NICK(user, word);
+// 				}
+// 				send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
+// 			}
+// 	} else if ( word == "USER" ) {
+		
+// 		if (!this->_isPasswordChecked)
+// 			break;
+// 		if (iss >> word)
+// 		{
 			
-			if (!this->_isPasswordChecked)
-				break;
-			if (iss >> word)
-			{
-				this->_nick = word;
-				if (iss >> word)
-					this->_name = word;
-				if (iss >> word) {
-				
-				this->_host = word;
-				this->isUserSet = true;
-				this->_buff.erase(0, 1 + _buff.find('\r', _buff.find(_host.c_str())));
-				return;
-				}
-			}
-		}
-	}
-	this->_buff.erase(this->_buff.length());
-}
+// 			if (iss >> word)
+// 				this->_name = word;
+// 			if (iss >> word) {
+			
+// 			this->_host = word;
+// 			if 
+// 			this->isUserSet = true;
+// 			return;
+// 			}
+// 		}
+// 	}
+	
+// 	this->_buff.erase(this->_buff.length());
+// }
 
 ////////// getters //////////
 std::string User::getNick( void ) const {
@@ -109,8 +137,28 @@ std::string User::getName( void ) const {
 	return (this->_nick + "!" + this->_name + "@" + this->_host);
 }
 
+std::string User::getRealName( void ) const {
+	return ( this->_name );
+}
+
 void User::setNick( std::string nick ) {
 	this->_nick = nick;
+}
+
+void User::clearNick( void ) {
+	this->_nick.clear() ;
+}
+
+void User::setName( std::string Name ) {
+	this->_name = Name;
+}
+
+void User::setHost( std::string Host ) {
+	this->_host = Host;
+}
+
+void User::setMode( int mode ) {
+	this->_mode = mode;
 }
 
 std::string User::getHost( void ) const {

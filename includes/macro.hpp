@@ -26,4 +26,8 @@
 // UNKNOWN
 #define ERR_NOTIMPLEMENTED(word) (": 449 : " + word + " command not implemented\n")
 
+// PRIVMSG CHAN
+#define PRIVMSGCHAN(sender, recv, word) (": " + user->getName() + " PRIVMSG " + recv->getNick() + " :" + word + "\r\n")
+
+
 #endif

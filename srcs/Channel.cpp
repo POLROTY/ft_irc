@@ -47,8 +47,9 @@ bool Channel::is_operator(User* user) const {
 void Channel::broadcast(const std::string& message, User* sender) {
     for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
         User* user = *it;
+		std::string tmp = PRIVMSGCHAN(sender, user, message);
         if (user != sender) {
-            send(user->getFd(), message.c_str(), message.size(), 0);
+            send(user->getFd(), tmp.c_str(), tmp.size(), 0);
         }
     }
 }

@@ -52,6 +52,12 @@ void stream( int client_index, Server & srv ) {
 					send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 				}
 			}
+		} else if ( !user->isPasswordChecked ) {
+			
+			user->isAlive = false;
+			std::string msg = ERR_PASSWDMISMATCH(user);
+			send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+			
 		} else if (word == "NICK") {
 
 			if (iss >> word) {

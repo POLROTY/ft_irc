@@ -40,6 +40,7 @@ public:
 	bool is_operator(User *user) const;
 	void broadcast(const std::string &message, User *sender);
 	void part(User *user);
+    std::string who(User *requester);
 
 private:
     std::string name;

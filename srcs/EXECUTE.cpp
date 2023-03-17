@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EXECUTE.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:52:22 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/17 17:16:15 by hspriet          ###   ########.fr       */
+/*   Updated: 2023/03/18 00:37:14 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,34 @@ void stream( int client_index, Server & srv ) {
 			//maybe send that
 			std::cerr << "You need to finish setting up the user before executing commands" << std::endl;
 			
-		} else if (word == "JOIN") {
+		} else if (word == "WHO") {
+            if (iss >> word) {
+                if (word[0] == '#') {
+                    std::list<Channel*>::iterator it = srv.find_channel(word);
+                    if (it != srv.channels.end()) {
+                        std::string msg = (*it)->who(user);
+                        send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+                    } else {
+                        std::string msg = ERR_NOSUCHCHANNEL(user, word);
+                        send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+                    }
+            	}
+			}
+		} else if (word == "WHOIS") {
+            if (iss >> word) {
+                User* targetUser = srv.find_user_by_nickname(word);
+                if (targetUser) {
+                    std::string msg = RPL_WHOISUSER(user, targetUser) + RPL_WHOISSERVER(user, targetUser) + RPL_ENDOFWHOIS(user, targetUser);
+                    send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+                } else {
+                    std::string msg = ERR_NOSUCHNICK(user, word);
+                    send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+                }
+            } else {
+                std::string msg = ERR_NONICKNAMEGIVEN(user);
+                send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+            }
+        } else if (word == "JOIN") {
 			
 				iss >> word;
 				std::list<Channel*>::iterator it = srv.find_channel( word );

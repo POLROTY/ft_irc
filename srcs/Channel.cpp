@@ -1,4 +1,5 @@
 #include "Channel.hpp"
+#include "irc.hpp"
 #include <algorithm>
 #include <sys/socket.h>
 
@@ -57,4 +58,17 @@ void Channel::broadcast(const std::string& message, User* sender) {
 
         }
     }
+}
+
+std::string Channel::who(User *requester) {
+        std::stringstream ss;
+        std::vector<User*>::iterator it;
+        for (it = users.begin(); it != users.end(); ++it) {
+            ss << ":" << requester->getName() << " 352 " << requester->getNick() << " "
+               << getName() << " " << (*it)->getName() << " " << (*it)->getHost()
+               << " " << (*it)->getName() << " H" << " :0 " << (*it)->getRealName() << "\r\n";
+        }
+        ss << ":" << requester->getName() << " 315 " << requester->getNick() << " "
+           << getName() << " :End of /WHO list.\r\n";
+        return ss.str();
 }

@@ -4,25 +4,6 @@
 #include "../includes/User.hpp"
 
 
-// bool passwordCheck( std::string str, Server & srv ) {
-
-// 	std::istringstream iss( str );
-//     std::string word;
-// 	while ( iss >> word ) {
-// 		std::cerr << "|" << word << "|" << std::endl;
-// 		if ( word == "PASS" ) {
-			
-// 			if ( iss >> word ) {
-// 				std::cerr << word << std::endl;
-// 				std::cerr << srv.getPassword() << std::endl;
-// 				if ( word == srv.getPassword() )
-// 					return ( true );
-// 			}
-// 		}
-// 	}
-// 	return( false );
-// }
-
 int main(int argc, char **argv){
 	if (arguments_check(argc, argv[1]))
 		return (EXIT_FAILURE);

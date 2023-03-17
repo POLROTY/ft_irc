@@ -6,7 +6,7 @@
 /*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:22:40 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/16 00:14:28 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/17 23:59:54 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,72 +57,6 @@ void User::appendBuff( std::string str ) {
 		this->_buff.append(str.c_str());
 	}
 }
-
-// void	User::initUser( std::string password ) {
-
-// 	std::string::size_type pos = this->getBuff().find_first_of('\n');
-// 	std::string command = this->getBuff().substr(0, pos);
-// 	this->setBuff( this->getBuff().erase(0, pos + 1) );
-	
-// 	std::istringstream iss( command );
-//     std::string word;
-// 	iss >> word;
-	
-// 	std::cerr << word << std::endl;
-	
-// 	if ( word == "CAP" && !this->_isPasswordChecked ) {
-// 		iss >> word;
-// 		if ( word == "LS" )
-// 			this->isIrssi = true;
-// 	} else if ( word == "PASS" ) {
-		
-// 			if ( word == password )
-// 				this->_isPasswordChecked = true;
-// 				std::cerr << "A user got password right" << std::endl;
-// 			else {
-// 				if ( this->isIrssi )
-// 					this->isAlive = false;
-// 				std::string msg = ERR_PASSWDMISMATCH(this);
-// 				send(this->_fd, msg.c_str(), msg.length(), MSG_NOSIGNAL);
-// 			}
-// 		}
-// 	} else if (word == "NICK") {
-		
-// 		if (!this->_isPasswordChecked)
-// 			break;
-// 		if (iss >> word) {
-// 				std::string str;
-// 				if (nickInUse(word,  srv)) {
-
-// 					str = ERR_NICKNAMEINUSE(user, word);
-// 				} else {
-
-// 					user->setNick(word);
-// 					str = NICK(user, word);
-// 				}
-// 				send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
-// 			}
-// 	} else if ( word == "USER" ) {
-		
-// 		if (!this->_isPasswordChecked)
-// 			break;
-// 		if (iss >> word)
-// 		{
-			
-// 			if (iss >> word)
-// 				this->_name = word;
-// 			if (iss >> word) {
-			
-// 			this->_host = word;
-// 			if 
-// 			this->isUserSet = true;
-// 			return;
-// 			}
-// 		}
-// 	}
-	
-// 	this->_buff.erase(this->_buff.length());
-// }
 
 ////////// getters //////////
 std::string User::getNick( void ) const {

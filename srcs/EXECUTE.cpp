@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EXECUTE.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:52:22 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/17 15:44:59 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/17 15:43:38 by hspriet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,14 +135,27 @@ void stream( int client_index, Server & srv ) {
 					tmp->join( user );
 					std::cerr << "User " << user->getNick() << " was added to channel " << tmp->getName() << std::endl;
 				}
-		} else if (word == "PRIVMSG") {
-			
-				iss >> word;
-				std::list<Channel*>::iterator it = srv.find_channel( word );
-				std::string tmp;
-				getline(iss, tmp);
-				(*it)->broadcast( word + tmp.erase( 0, 1 ), user );
-		} else {
+		}
+		else if (word == "PRIVMSG") {
+    iss >> word; // Extract the channel name
+    std::list<Channel*>::iterator it = srv.find_channel(word);
+
+    // Check if the channel was found
+    if (it != srv.channels.end()) {
+        getline(iss, word, ':'); // Skip the colon before the message content
+        std::string message;
+        getline(iss, message); // Read the rest of the message
+        // Broadcast the message (including the extracted word)
+		message.erase(std::remove(message.begin(), message.end(), '\n'), message.end());
+        message.erase(std::remove(message.begin(), message.end(), '\r'), message.end());
+        (*it)->broadcast(word + message, user);
+    } else {
+        // Handle the case where the channel was not found
+        // (e.g., send an error message back to the user)
+    }
+}
+
+		else {
 
 			// std::string str = ":" + user->getName() + " 404 " + user->getNick() + " :" + user->getHost() + " UNKNOWN COMMAND YET\n" ;
 			// send( user->getFd(), str.c_str(), str.length(), ERR_NOTIMPLEMENTED );

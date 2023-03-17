@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:08:36 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/17 17:08:48 by hspriet          ###   ########.fr       */
+/*   Updated: 2023/03/17 18:13:01 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,9 @@ class Server {
 		~Server( void );
 
 		Server( std::string const password, std::string const hostName, int socket);
+		int	server_loop( void );
+		int	bind_and_listen( int listening, int port);
+		
 		std::string getPassword( void ) const;
 		std::string getHostName( void ) const;
 		pollfd		*getAllPollfds( void ) const;
@@ -43,7 +46,7 @@ class Server {
 		std::list< Channel * >::iterator find_channel( std::string channel_name );
 		User* find_user_by_nickname(const std::string& nickname);
 		void send_private_message(const std::string &sender_nickname, const std::string &recipient_nickname, const std::string &message);
-
+		sockaddr_in serverAddress;
 	private:
 		//canon
 		Server( void );
@@ -54,7 +57,6 @@ class Server {
 		pollfd			*_poll_fds;
 };
 
-int	server_loop(Server *srv, sockaddr_in serverAddress);
-int	bind_and_listen(sockaddr_in serverAddress, int listening, int port);
+
 
 #endif

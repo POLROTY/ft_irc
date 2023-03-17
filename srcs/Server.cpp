@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/17 17:25:25 by hspriet          ###   ########.fr       */
+/*   Updated: 2023/03/17 19:51:30 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,11 +120,11 @@ void		Server::setPollfd( int index, int fd_value, int events_value, int revents_
 ////////// functions //////////
 
 
-int	bind_and_listen( sockaddr_in serverAddress, int listening, int port ) {
-	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_port = htons(port);
-	inet_pton(AF_INET, "0.0.0.0", &serverAddress.sin_addr);
-	if (bind( listening, reinterpret_cast< sockaddr * >( &serverAddress ), sizeof( serverAddress )) < 0 ) {
+int	Server::bind_and_listen( int listening, int port ) {
+	this->serverAddress.sin_family = AF_INET;
+	this->serverAddress.sin_port = htons(port);
+	inet_pton(AF_INET, "0.0.0.0", &this->serverAddress.sin_addr);
+	if (bind( listening, reinterpret_cast< sockaddr * >( &this->serverAddress ), sizeof( this->serverAddress )) < 0 ) {
 		std::cerr << "Error : cannot bind to IP/Port." << std::endl;
 		return (EXIT_FAILURE);
 	}
@@ -159,10 +159,11 @@ void Server::send_private_message(const std::string& sender_nickname, const std:
 }
 
 
-int	server_loop(Server *srv, sockaddr_in serverAddress)
+int	Server::server_loop( void )
 {
+	Server *srv = this;
 	char buff[4096];
-	socklen_t	serverAddressLen = sizeof(serverAddress);
+	socklen_t	serverAddressLen = sizeof(this->serverAddress);
 	int	current_client_fd;
 	int client_index = 1;
 	while (true) {
@@ -176,7 +177,7 @@ int	server_loop(Server *srv, sockaddr_in serverAddress)
 		}
 		if (srv->getPollfd(0).revents & POLLIN) {
 			current_client_fd = accept(srv->getSocket(),
-									  reinterpret_cast< sockaddr * >(&serverAddress),
+									  reinterpret_cast< sockaddr * >(&this->serverAddress),
 									  &serverAddressLen);
 			if (current_client_fd < 0) {
 				
@@ -191,23 +192,25 @@ int	server_loop(Server *srv, sockaddr_in serverAddress)
 				std::cout << "New connection :" << srv->getClientNbr() << std::endl;
 			}
 		}
-		if (srv->getPollfd(client_index).revents & POLLIN && srv->user(client_index)->isAlive) {	
-			int bytesRecv = recv(srv->getPollfd(client_index).fd, buff, 4096, 0);
-			if (bytesRecv < 0) {
+		if (srv->getClientNbr()) {
+			if (srv->getPollfd(client_index).revents & POLLIN && srv->user(client_index)->isAlive) {	
+				int bytesRecv = recv(srv->getPollfd(client_index).fd, buff, 4096, 0);
+				if (bytesRecv < 0) {
 
-				std::cout << " Client " << client_index << " disconected" << std::endl;
-				srv->user(client_index)->isAlive = false;
-			} else if (bytesRecv != 0) {
-				
-				std::string strBuff = std::string(buff, 0, bytesRecv);
-				std::cout << "Received : [" << strBuff << "] from user " << client_index <<std::endl;
-				srv->user(client_index)->appendBuff(strBuff);
-			} else {
-				srv->user(client_index)->isAlive = false;
+					std::cout << " Client " << client_index << " disconected" << std::endl;
+					srv->user(client_index)->isAlive = false;
+				} else if (bytesRecv != 0) {
+					
+					std::string strBuff = std::string(buff, 0, bytesRecv);
+					std::cout << "Received : [" << strBuff << "] from user " << client_index <<std::endl;
+					srv->user(client_index)->appendBuff(strBuff);
+				} else {
+					srv->user(client_index)->isAlive = false;
+				}
 			}
-		}
-		if (!srv->users.empty() && srv->user(client_index)->isAlive) {
-			stream(client_index, *srv);
+			if (!srv->users.empty() && srv->user(client_index)->isAlive) {
+				stream(client_index, *srv);
+			}
 		}
 		memset(buff, 0, sizeof(buff));
 		client_index++;

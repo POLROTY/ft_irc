@@ -47,8 +47,12 @@ bool Channel::is_operator(User* user) const {
 void Channel::broadcast(const std::string& message, User* sender) {
     for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
         User* user = *it;
+
+        // Format the message according to the IRC protocol
+        std::string formatted_message = ":" + sender->getNick() + "!" + sender->getRealName() + "@" + sender->getHost() + " PRIVMSG " + name + " :" + message + "\r\n";
+        
         if (user != sender) {
-            send(user->getFd(), message.c_str(), message.size(), 0);
+            send(user->getFd(), formatted_message.c_str(), formatted_message.size(), 0);
         }
     }
 }

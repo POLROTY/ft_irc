@@ -6,7 +6,7 @@
 /*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:08:36 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/15 17:00:28 by hspriet          ###   ########.fr       */
+/*   Updated: 2023/03/17 17:08:48 by hspriet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,10 @@ class Server {
 		std::list< User * > users;
 		std::list< Channel * > channels;
 		std::list< Channel * >::iterator find_channel( std::string channel_name );
+		User* find_user_by_nickname(const std::string& nickname);
+		void send_private_message(const std::string &sender_nickname, const std::string &recipient_nickname, const std::string &message);
 
-	private :
+	private:
 		//canon
 		Server( void );
 		std::string		_password;

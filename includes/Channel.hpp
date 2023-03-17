@@ -35,6 +35,8 @@ public:
     // Other methods...
     void join(User *user);
     std::string getName( void ) { return ( this->name ); }
+	void broadcast(const std::string &message, User *sender);
+	
 private:
     std::string name;
     std::vector<User*> users;
@@ -43,7 +45,7 @@ private:
 	
 	bool has_user(User *user) const;
 	bool is_operator(User *user) const;
-	void broadcast(const std::string &message, User *sender);
+	
 	void part(User *user);
 };
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EXECUTE.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:52:22 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/16 01:04:17 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/17 15:44:59 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,12 @@ void stream( int client_index, Server & srv ) {
 					send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 				}
 			}
+		} else if ( !user->isPasswordChecked ) {
+			
+			user->isAlive = false;
+			std::string msg = ERR_PASSWDMISMATCH(user);
+			send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+			
 		} else if (word == "NICK") {
 
 			if (iss >> word) {
@@ -129,8 +135,14 @@ void stream( int client_index, Server & srv ) {
 					tmp->join( user );
 					std::cerr << "User " << user->getNick() << " was added to channel " << tmp->getName() << std::endl;
 				}
-		}
-		else {
+		} else if (word == "PRIVMSG") {
+			
+				iss >> word;
+				std::list<Channel*>::iterator it = srv.find_channel( word );
+				std::string tmp;
+				getline(iss, tmp);
+				(*it)->broadcast( word + tmp.erase( 0, 1 ), user );
+		} else {
 
 			// std::string str = ":" + user->getName() + " 404 " + user->getNick() + " :" + user->getHost() + " UNKNOWN COMMAND YET\n" ;
 			// send( user->getFd(), str.c_str(), str.length(), ERR_NOTIMPLEMENTED );

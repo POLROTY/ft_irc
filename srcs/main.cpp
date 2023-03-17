@@ -32,11 +32,11 @@ int main(int argc, char **argv){
 		return (EXIT_FAILURE);
 	}
 	std::cout << "socket is : " << listening << std::endl;
-	Server *srv = new Server("localhost", argv[2], listening);
-	sockaddr_in serverAddress;
-	if (bind_and_listen(serverAddress, listening, atoi(argv[1])) == EXIT_FAILURE)
+	Server srv = Server("localhost", argv[2], listening);
+	
+	if (srv.bind_and_listen( listening, atoi(argv[1])) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
-	if (server_loop(srv, serverAddress) == EXIT_FAILURE)
+	if (srv.server_loop() == EXIT_FAILURE)
 		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }

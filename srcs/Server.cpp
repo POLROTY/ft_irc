@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/15 21:53:38 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/17 17:25:25 by hspriet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,29 @@ int	bind_and_listen( sockaddr_in serverAddress, int listening, int port ) {
 	}
 	return (0);
 }
+
+User* Server::find_user_by_nickname(const std::string& nickname) {
+    for (std::list<User*>::iterator it = users.begin(); it != users.end(); ++it) {
+        if ((*it)->getNick() == nickname) {
+            return *it;
+        }
+    }
+    return NULL;
+}
+
+void Server::send_private_message(const std::string& sender_nickname, const std::string& recipient_nickname, const std::string& message) {
+    User* sender = find_user_by_nickname(sender_nickname);
+    User* recipient = find_user_by_nickname(recipient_nickname);
+
+    if (sender == NULL || recipient == NULL) {
+        // Either sender or recipient not found
+        return;
+    }
+
+    std::string formatted_message = ":" + sender->getName() + " PRIVMSG " + recipient->getNick() + " :" + message + "\r\n";
+	send(recipient->getFd(), formatted_message.c_str(), formatted_message.size(), 0);
+}
+
 
 int	server_loop(Server *srv, sockaddr_in serverAddress)
 {

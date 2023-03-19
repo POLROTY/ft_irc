@@ -44,6 +44,71 @@ bool Channel::is_operator(User* user) const {
     return std::find(operators.begin(), operators.end(), user) != operators.end();
 }
 
+// Check if a user is  in the channel
+User* Channel::find_user_by_nickname(const std::string& nickname) {
+    for (std::vector<User*>::iterator it = users.begin(); it != users.end(); ++it) {
+        if ((*it)->getNick() == nickname) {
+            return *it;
+        }
+    }
+    return NULL;
+}
+void Channel::add_to_operators(User * user) {
+    for (std::vector<User*>::iterator it = operators.begin(); it != operators.end(); ++it) {
+        if ((*it) == user) {
+            return ;
+        }
+    }
+    operators.push_back(user);
+    std::string msg = RPL_ADDEDCHANOPER(user, this->name);
+    send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+}
+
+void Channel::remove_from_operators(User * user) {
+    for (std::vector<User*>::iterator it = operators.begin(); it != operators.end(); ++it) {
+        if ((*it) == user) {
+            operators.erase(it);
+            std::string msg = RPL_REMOVEDCHANOPER(user, this->name);
+            send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+            return ;
+        }
+    }
+}
+
+void Channel::update_modes(const std::string& mode_changes, User * user) {
+        bool add_mode = true;
+        for (std::string::const_iterator it = mode_changes.begin(); it != mode_changes.end(); ++it) {
+            char mode = *it;
+            switch (mode) {
+                case '+':
+                    add_mode = true;
+                    break;
+                case '-':
+                    add_mode = false;
+                    break;
+                case 'o':  // channel IRC operator mode
+                    if (add_mode) {
+                        add_to_operators(user);
+                    } else {
+                        remove_from_operators(user);
+                    }
+                    break;
+                // case 'b':  // channel IRC ban mode
+                //     if (add_mode) {
+                //         add_to_ban(user);
+                //     } else {
+                //         remove_from_ban(user);
+                //     }
+                //     break;
+                // ... handle other user modes ...
+                default:
+                    // Ignore unsupported or unknown modes
+                    break;
+            }
+        }
+    }
+
+
 // Send a message to all users in the channel
 void Channel::broadcast(const std::string& message, User* sender) {
     for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
@@ -53,9 +118,8 @@ void Channel::broadcast(const std::string& message, User* sender) {
         // Format the message according to the IRC protocol
         std::string formatted_message = ":" + sender->getNick() + "!" + sender->getRealName() + "@" + sender->getHost() + " PRIVMSG " + name + " :" + message + "\r\n";
         
-        if (user != sender) {
+        if (user != sender && user->isAlive) {
             send(user->getFd(), formatted_message.c_str(), formatted_message.size(), 0);
-
         }
     }
 }

@@ -37,10 +37,20 @@ public:
     std::string getName( void ) { return ( this->name ); }
 
 	bool has_user(User *user) const;
-	bool is_operator(User *user) const;
+	
 	void broadcast(const std::string &message, User *sender);
 	void part(User *user);
     std::string who(User *requester);
+    User* find_user_by_nickname(const std::string& nickname);
+    void update_modes(const std::string& mode_changes, User *user);
+
+    //Operator methods
+    bool is_operator(User *user) const;
+    void add_to_operators( User *user);
+    void remove_from_operators(User *user);
+
+    void add_to_ban(User *user);
+    void remove_from_ban(User *user);
 
 private:
     std::string name;

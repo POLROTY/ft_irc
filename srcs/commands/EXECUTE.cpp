@@ -6,7 +6,7 @@
 /*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:52:22 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/18 00:37:14 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/19 16:21:05 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ void stream( int client_index, Server & srv ) {
 			
 			if ( iss >> word ) {
 				if ( word == srv.getPassword() ) {
+					user->isPasswordChecked = true;
 					user->isPasswordChecked = true;
 					std::cerr << "A user got password right" << std::endl;
 				} else {
@@ -114,10 +115,44 @@ void stream( int client_index, Server & srv ) {
 			}
 		} else if (word == "MODE") {
 
-			if (iss >> word) {
-				user->setMode( atoi( word.c_str() ));
-				std::cerr << "Changed user mode" << std::endl;
-			}
+			std::string target, mode_changes, target_user_nick;
+            if (iss >> target >> mode_changes) {
+                if (target[0] == '#') {  // Channel mode
+                    std::list<Channel*>::iterator it = srv.find_channel(target);
+                    if (it != srv.channels.end()) {
+                        Channel *channel = *it;
+                        if (channel->is_operator(user)) {
+							if ( iss >> target_user_nick ) {
+								User * target_user = channel->find_user_by_nickname(target_user_nick);
+								if (target_user) {
+									channel->update_modes(mode_changes, target_user);
+								} else {
+									std::string msg = ERR_NOSUCHUSERINCHANNEL(user,target,target_user_nick);
+                      			  	send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+								}
+							} else {
+                            	channel->update_modes(mode_changes, user);
+							}
+                        } else {
+                            std::string msg = ERR_CHANOPRIVSNEEDED(user, target);
+                            send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+                        }
+                    } else {
+                        std::string msg = ERR_NOSUCHCHANNEL(user, target);
+                        send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+                    }
+                } else {  // User mode
+                    if (user->getNick() == target) {
+                        user->update_modes(mode_changes);
+                    } else {
+                        std::string msg = ERR_USERSDONTMATCH(user);
+                        send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+                    }
+                }
+            } else {
+                std::string msg = ERR_NEEDMOREPARAMS(user, "MODE");
+                send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+            }
 		} else if ( !user->isUserSet ) {
 			//maybe send that
 			std::cerr << "You need to finish setting up the user before executing commands" << std::endl;
@@ -135,6 +170,21 @@ void stream( int client_index, Server & srv ) {
                     }
             	}
 			}
+		} else if (word == "OPER") {
+             std::string username, password;
+            if (iss >> username >> password) {
+                if (srv.is_valid_oper(username, password)) {
+                    user->isServerOperator = true;
+                    std::string msg = RPL_YOUREOPER(user);
+                    send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+                } else {
+                    std::string msg = ERR_PASSWDMISMATCH(user);
+                    send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+                }
+            } else {
+                std::string msg = ERR_NEEDMOREPARAMS(user, "OPER");
+                send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+            }
 		} else if (word == "WHOIS") {
             if (iss >> word) {
                 User* targetUser = srv.find_user_by_nickname(word);
@@ -198,9 +248,7 @@ void stream( int client_index, Server & srv ) {
 					// Send the private message to the target user
 					srv.send_private_message(user->getNick(), receiver_nickname, message);
 				}
-}
-
-		else {
+		} else {
 
 			// std::string str = ":" + user->getName() + " 404 " + user->getNick() + " :" + user->getHost() + " UNKNOWN COMMAND YET\n" ;
 			// send( user->getFd(), str.c_str(), str.length(), ERR_NOTIMPLEMENTED );

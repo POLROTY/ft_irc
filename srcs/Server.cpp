@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/17 19:51:30 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/19 10:47:48 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,8 @@ Server::Server( std::string const hostName, std::string const password, int fd )
 	this->_poll_fds[0].fd = fd;
 	this->_poll_fds[0].events = POLLIN;
 	this->_clientNbr = 0;
+	this->_adminUsername = "ADMIN";
+	this->_adminPassword = "ADMIN";
 	return;
 }
 
@@ -158,6 +160,12 @@ void Server::send_private_message(const std::string& sender_nickname, const std:
 	send(recipient->getFd(), formatted_message.c_str(), formatted_message.size(), 0);
 }
 
+bool Server::is_valid_oper(std::string &username, std::string &password)
+{
+	if ( username == this->_adminUsername && password == this->_adminPassword )
+		return true;
+	return false;
+}
 
 int	Server::server_loop( void )
 {

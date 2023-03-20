@@ -6,7 +6,7 @@
 /*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:22:40 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/17 23:59:54 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/19 12:20:03 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ User::User( int fd ) {
 	this->isIrssi = false;
 	this->isPasswordChecked = false;
 	this->isAlive = true;
+	this->isServerOperator = false;
 	this->_host = "localhost";
 	return;
 }
@@ -37,7 +38,6 @@ User &User::operator=( const User & toTheRight ){
 	this->_fd = toTheRight._fd;
 	this->_nick = toTheRight._nick;
 	this->_name = toTheRight._name;
-	this->_mode = toTheRight._mode;
 	this->_host = toTheRight._host;
 	return (*this);
 }
@@ -91,8 +91,8 @@ void User::setHost( std::string Host ) {
 	this->_host = Host;
 }
 
-void User::setMode( int mode ) {
-	this->_mode = mode;
+void User::setMode( std::string channel, std::string mode ) {
+	this->channelModes.push_back(channel + mode);
 }
 
 std::string User::getHost( void ) const {
@@ -107,3 +107,36 @@ std::string User::getBuff( void ) const {
 void	User::setBuff( std::string newBuff ) {
 	this->_buff = newBuff;
 }
+
+void User::update_modes(const std::string& mode_changes) {
+        bool add_mode = true;
+        for (std::string::const_iterator it = mode_changes.begin(); it != mode_changes.end(); ++it) {
+            char mode = *it;
+            switch (mode) {
+                case '+':
+                    add_mode = true;
+                    break;
+                case '-':
+                    add_mode = false;
+                    break;
+                case 'o':  // channel IRC operator mode
+                    if (add_mode) {
+                        //send message to say you cant
+                    } else {
+                        this->isServerOperator = false;
+                    }
+                    break;
+                // case 'b':  // channel IRC ban mode
+                //     if (add_mode) {
+                //         add_to_ban(user);
+                //     } else {
+                //         remove_from_ban(user);
+                //     }
+                //     break;
+                // ... handle other user modes ...
+                default:
+                    // Ignore unsupported or unknown modes
+                    break;
+            }
+        }
+    }

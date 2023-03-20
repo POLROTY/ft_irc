@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:08:36 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/17 18:13:01 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/19 10:46:24 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,9 +47,13 @@ class Server {
 		User* find_user_by_nickname(const std::string& nickname);
 		void send_private_message(const std::string &sender_nickname, const std::string &recipient_nickname, const std::string &message);
 		sockaddr_in serverAddress;
+
+		bool is_valid_oper(std::string & username, std::string & password);
 	private:
 		//canon
 		Server( void );
+		std::string		_adminUsername;
+		std::string		_adminPassword;
 		std::string		_password;
 		std::string		_hostName;
 		int				_socket;

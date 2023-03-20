@@ -6,7 +6,7 @@
 /*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:18:45 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/16 00:14:50 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/19 12:19:19 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,13 +39,19 @@ class User {
 		// void		initUser( std::string password );
 		void		setName( std::string Name );
 		void		setHost( std::string Host );
-		void		setMode( int mode );
+		void		setMode( std::string channel, std::string mode );
 		void		clearNick( void );
 
 		bool		isUserSet;
 		bool		isAlive;
 		bool		isIrssi;
 		bool 		isPasswordChecked;
+
+		//USER MODES
+		bool						isServerOperator;
+		std::vector<std::string>	channelModes;
+		void update_modes(const std::string& mode_changes);
+		
 	private:
 		//canon
 		User( void );
@@ -56,7 +62,6 @@ class User {
 		std::string _buff;
 		
 		int 		_fd;
-		int 		_mode;
 };
 
 #endif

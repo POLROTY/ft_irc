@@ -6,7 +6,7 @@
 /*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/20 18:34:08 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/20 18:44:31 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,12 @@ Server &Server::operator=( const Server & toTheRight ) {
 }
 
 Server::~Server( void ) {
+	for (std::list<User*>::iterator it = Server::instance->users.begin(); it != Server::instance->users.end(); ++it) {
+		delete (*it);
+	}
+	for (std::list<Channel*>::iterator it = Server::instance->channels.begin(); it != Server::instance->channels.end(); ++it) {
+		delete (*it);
+	}
 	delete[] this->_poll_fds;
 	return;
 }
@@ -173,12 +179,6 @@ void signalHandler(int signum) {
     if (signum == SIGINT) {
         // ctrl+C was pressed
 		if (Server::instance) {
-			for (std::list<User*>::iterator it = Server::instance->users.begin(); it != Server::instance->users.end(); ++it) {
-				delete (*it);
-    		}
-			for (std::list<Channel*>::iterator it = Server::instance->channels.begin(); it != Server::instance->channels.end(); ++it) {
-				delete (*it);
-    		}
         	delete Server::instance;
 		}
 		std::cerr << std::endl << std::endl << "The server has shut down" << std::endl << std::endl;

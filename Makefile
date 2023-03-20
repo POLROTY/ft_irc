@@ -5,8 +5,8 @@ SRC			= main.cpp \
 			  Server.cpp \
 			  utils.cpp \
 			  Channel.cpp \
-			  EXECUTE.cpp \
-			  NICK.cpp
+			  commands/EXECUTE.cpp \
+			  commands/NICK.cpp
 
 SRCSPATH 	= srcs
 
@@ -29,6 +29,7 @@ OBJS        = $(addprefix $(OBJDIR)/,${SRC:.cpp=.o})
 $(OBJDIR)/%.o: $(SRCSPATH)/%.cpp
 	@printf "$(_ORANGE)Compiling : %s\n" $<
 	@mkdir -p $(OBJDIR)
+	@mkdir -p $(OBJDIR)/commands/
 	@$(CC) $(CFLAGS) -I $(INCLUDES) -c $< -o $@
 
 all: ${NAME}
@@ -41,6 +42,7 @@ ${NAME}:	${OBJS}
 clean:
 	@printf "$(_RED)Removing objects...\n"
 	@${RM} ${OBJS} ./all_o/*.o ./all_o/*.d
+	@${RM} ${OBJS} ./all_o/commands
 
 fclean:	clean
 	@printf "$(_RED)Removing $(NAME)...\n"

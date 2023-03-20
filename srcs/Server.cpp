@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/19 10:47:48 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/20 18:57:05 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,21 @@ Server &Server::operator=( const Server & toTheRight ) {
 }
 
 Server::~Server( void ) {
+	this->is_running = false;
+	std::list<User *>::iterator user_it;
+	std::list<Channel *>::iterator chan_it;
+	user_it = this->users.begin();
+	chan_it = this->channels.begin();
+	while (chan_it != this->channels.end())
+	{
+		delete *chan_it;
+		chan_it++;
+	}
+	while (user_it != this->users.end())
+	{
+		delete *user_it;
+		user_it++;
+	}
 	delete[] this->_poll_fds;
 	return;
 }
@@ -49,6 +64,7 @@ Server::Server( std::string const hostName, std::string const password, int fd )
 	this->_clientNbr = 0;
 	this->_adminUsername = "ADMIN";
 	this->_adminPassword = "ADMIN";
+	this->is_running = true;
 	return;
 }
 
@@ -68,8 +84,6 @@ User * Server::user( int userIndex ) {
 }
 
 std::list< Channel * >::iterator Server::find_channel( std::string channel_name ) {
-	
-
 	std::list< Channel * >::iterator it = this->channels.begin();
 	std::list< Channel * >::iterator ite = this->channels.end();
 	while (it != ite) {
@@ -80,47 +94,6 @@ std::list< Channel * >::iterator Server::find_channel( std::string channel_name 
 	}
 	return (it);
 }
-
-
-////////// getters //////////
-std::string Server::getPassword( void ) const {
-	return (this->_password);
-}
-
-std::string Server::getHostName( void ) const {
-	return (this->_hostName);
-}
-
-pollfd		*Server::getAllPollfds( void ) const {
-	return (this->_poll_fds);
-}
-
-int			Server::getClientNbr( void ) const {
-	return (this->_clientNbr);
-}
-
-int			Server::getSocket( void ) const {
-	return (this->_socket);
-}
-
-pollfd		Server::getPollfd( int index ) const {
-	return (this->_poll_fds[index]);
-}
-
-////////// setters //////////
-void		Server::clientNbrIncr( void ) {
-	this->_clientNbr += 1;
-}
-
-void		Server::setPollfd( int index, int fd_value, int events_value, int revents_value) {
-	this->_poll_fds[index].fd = fd_value;
-	this->_poll_fds[index].events = events_value;
-	this->_poll_fds[index].revents = revents_value;
-}
-
-
-////////// functions //////////
-
 
 int	Server::bind_and_listen( int listening, int port ) {
 	this->serverAddress.sin_family = AF_INET;
@@ -174,8 +147,8 @@ int	Server::server_loop( void )
 	socklen_t	serverAddressLen = sizeof(this->serverAddress);
 	int	current_client_fd;
 	int client_index = 1;
-	while (true) {
-
+	while (srv->is_running) {
+		signal(SIGINT, sighandler);
 		if (client_index > srv->getClientNbr()) {
 			client_index = 1;
 		}
@@ -188,12 +161,10 @@ int	Server::server_loop( void )
 									  reinterpret_cast< sockaddr * >(&this->serverAddress),
 									  &serverAddressLen);
 			if (current_client_fd < 0) {
-				
 				std::cerr << "Error : cannot accept new client" << std::endl;
 				return (EXIT_FAILURE);
 			
 			} else {
-				
 				srv->users.push_back(new User( current_client_fd ));
 				srv->clientNbrIncr();
 				srv->setPollfd(srv->getClientNbr(), current_client_fd, POLLIN, 0);
@@ -204,11 +175,9 @@ int	Server::server_loop( void )
 			if (srv->getPollfd(client_index).revents & POLLIN && srv->user(client_index)->isAlive) {	
 				int bytesRecv = recv(srv->getPollfd(client_index).fd, buff, 4096, 0);
 				if (bytesRecv < 0) {
-
 					std::cout << " Client " << client_index << " disconected" << std::endl;
 					srv->user(client_index)->isAlive = false;
 				} else if (bytesRecv != 0) {
-					
 					std::string strBuff = std::string(buff, 0, bytesRecv);
 					std::cout << "Received : [" << strBuff << "] from user " << client_index <<std::endl;
 					srv->user(client_index)->appendBuff(strBuff);
@@ -223,4 +192,41 @@ int	Server::server_loop( void )
 		memset(buff, 0, sizeof(buff));
 		client_index++;
 	}
+	return (0);
+}
+
+////////// getters //////////
+std::string Server::getPassword( void ) const {
+	return (this->_password);
+}
+
+std::string Server::getHostName( void ) const {
+	return (this->_hostName);
+}
+
+pollfd		*Server::getAllPollfds( void ) const {
+	return (this->_poll_fds);
+}
+
+int			Server::getClientNbr( void ) const {
+	return (this->_clientNbr);
+}
+
+int			Server::getSocket( void ) const {
+	return (this->_socket);
+}
+
+pollfd		Server::getPollfd( int index ) const {
+	return (this->_poll_fds[index]);
+}
+
+////////// setters //////////
+void		Server::clientNbrIncr( void ) {
+	this->_clientNbr += 1;
+}
+
+void		Server::setPollfd( int index, int fd_value, int events_value, int revents_value) {
+	this->_poll_fds[index].fd = fd_value;
+	this->_poll_fds[index].events = events_value;
+	this->_poll_fds[index].revents = revents_value;
 }

@@ -23,3 +23,12 @@ bool	arguments_check( int argc, char *str ) {
 	}
 	return (EXIT_SUCCESS);
 }
+
+void	sighandler(int signal)
+{
+	if (signal == SIGINT)
+	{
+		delete Server::instance;
+		exit(1);
+	}
+}

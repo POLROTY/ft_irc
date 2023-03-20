@@ -44,6 +44,9 @@
 #define RPL_ADDEDCHANOPER(user, channel) (":" + (user)->getName() + " 482 " + (user)->getNick() + " " + (channel) + " :You have been added as a channel operator\n")
 #define RPL_REMOVEDCHANOPER(user, channel) (":" + (user)->getName() + " 482 " + (user)->getNick() + " " + (channel) + " :You have been removed as a channel operator\n")
 
+//TOPIC
+#define RPL_TOPIC(user, channel, topic) (":" + (user)->getName() + " 332 " + (user)->getNick() + " " + (channel) + " :" + (topic) + "\n")
+
 //OPER
 #define RPL_YOUREOPER(user) (":" + (user)->getName() + " 381 " + (user)->getNick() + " :You are now an IRC operator\r\n")
 

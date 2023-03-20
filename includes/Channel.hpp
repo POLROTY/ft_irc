@@ -52,6 +52,13 @@ public:
     void add_to_ban(User *user);
     void remove_from_ban(User *user);
 
+
+
+	std::string topic;
+	std::string get_topic( void );
+	void set_topic( std::string new_topic );
+	void broadcast_new_topic( void );
+
 private:
     std::string name;
     std::vector<User*> users;

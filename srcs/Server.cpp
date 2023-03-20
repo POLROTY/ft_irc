@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/19 10:47:48 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/20 18:44:31 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include <csignal> // for signal()
+#include <cstdlib>
 
 //canon
 
@@ -35,6 +37,12 @@ Server &Server::operator=( const Server & toTheRight ) {
 }
 
 Server::~Server( void ) {
+	for (std::list<User*>::iterator it = Server::instance->users.begin(); it != Server::instance->users.end(); ++it) {
+		delete (*it);
+	}
+	for (std::list<Channel*>::iterator it = Server::instance->channels.begin(); it != Server::instance->channels.end(); ++it) {
+		delete (*it);
+	}
 	delete[] this->_poll_fds;
 	return;
 }
@@ -167,6 +175,17 @@ bool Server::is_valid_oper(std::string &username, std::string &password)
 	return false;
 }
 
+void signalHandler(int signum) {
+    if (signum == SIGINT) {
+        // ctrl+C was pressed
+		if (Server::instance) {
+        	delete Server::instance;
+		}
+		std::cerr << std::endl << std::endl << "The server has shut down" << std::endl << std::endl;
+        exit(signum);
+    }
+}
+
 int	Server::server_loop( void )
 {
 	Server *srv = this;
@@ -176,6 +195,7 @@ int	Server::server_loop( void )
 	int client_index = 1;
 	while (true) {
 
+		signal(SIGINT, signalHandler);
 		if (client_index > srv->getClientNbr()) {
 			client_index = 1;
 		}

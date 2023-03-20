@@ -3,6 +3,16 @@
 #include <algorithm>
 #include <sys/socket.h>
 
+std::string Channel::get_topic(void) {
+	return topic;
+}
+
+void Channel::set_topic( std::string new_topic ) {
+	if (!topic.empty())
+		topic.erase();
+	topic = new_topic;
+}
+
 // Add the first user to the channel and mark them as an operator
 void Channel::add_first_user_as_operator(User* user) {
     if (users.empty()) {
@@ -120,6 +130,19 @@ void Channel::broadcast(const std::string& message, User* sender) {
         
         if (user != sender && user->isAlive) {
             send(user->getFd(), formatted_message.c_str(), formatted_message.size(), 0);
+        }
+    }
+}
+
+void Channel::broadcast_new_topic( void ) {
+    for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
+        User* user = *it;
+		
+        // Format the message according to the IRC protocol
+        std::string msg = RPL_TOPIC(user, name, topic);
+
+        if (user->isAlive) {
+            send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
         }
     }
 }

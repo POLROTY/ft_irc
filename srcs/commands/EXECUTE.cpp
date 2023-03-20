@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EXECUTE.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:52:22 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/19 16:21:05 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/20 18:39:31 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,10 +210,39 @@ void stream( int client_index, Server & srv ) {
 				} else {
 					Channel * tmp = *it;
 					tmp->join( user );
+					std::string current_topic = (*it)->get_topic();
+					if (!current_topic.empty()) {
+						std::string msg = RPL_TOPIC(user, word, current_topic);
+						send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+					}
 					std::cerr << "User " << user->getNick() << " was added to channel " << tmp->getName() << std::endl;
 				}
-		}
-		else if (word == "PRIVMSG") {
+		} else if (word == "TOPIC") {
+			if (iss >> word) { // Extract the channel name
+				std::list<Channel*>::iterator it = srv.find_channel(word);
+				if (it != srv.channels.end()) {
+					std::string new_topic;
+					if (getline(iss, new_topic, ':')) { // If a new topic is specified
+						getline(iss, new_topic); // Read the rest of the new topic
+						// Remove any trailing newline characters from the new topic
+						new_topic.erase(std::remove(new_topic.begin(), new_topic.end(), '\n'), new_topic.end());
+						new_topic.erase(std::remove(new_topic.begin(), new_topic.end(), '\r'), new_topic.end());
+
+						// Set the new topic for the channel
+						(*it)->set_topic(new_topic);
+						(*it)->broadcast_new_topic();
+					} else {
+						// If no new topic is specified, return the current topic
+						std::string current_topic = (*it)->get_topic();
+						std::string msg = RPL_TOPIC(user, word, current_topic);
+						send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+					}
+				} else {
+					std::string msg = ERR_NOSUCHCHANNEL(user, word);
+					send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+				}
+			}
+        } else if (word == "PRIVMSG") {
 				iss >> word; // Extract the target (channel or user nickname)
 
 				// Check if the target is a channel (starts with a '#' character)
@@ -255,5 +284,4 @@ void stream( int client_index, Server & srv ) {
 			send(user->getFd(),  ERR_NOTIMPLEMENTED(word).c_str(), ERR_NOTIMPLEMENTED(word).length(), MSG_NOSIGNAL);
 		}
 	}
-
 }

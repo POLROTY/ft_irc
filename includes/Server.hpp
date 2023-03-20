@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:08:36 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/19 10:46:24 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/20 16:23:20 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ class Server {
 		sockaddr_in serverAddress;
 
 		bool is_valid_oper(std::string & username, std::string & password);
+		static Server* instance;
 	private:
 		//canon
 		Server( void );

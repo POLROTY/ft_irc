@@ -43,6 +43,8 @@
 #define ERR_NOSUCHUSERINCHANNEL(user, channel, target) (":" + (user)->getName() + " 441 " + (user)->getNick() + " " + (target) + " " + (channel) + " :No such user in channel\n")
 #define RPL_ADDEDCHANOPER(user, channel) (":" + (user)->getName() + " 482 " + (user)->getNick() + " " + (channel) + " :You have been added as a channel operator\n")
 #define RPL_REMOVEDCHANOPER(user, channel) (":" + (user)->getName() + " 482 " + (user)->getNick() + " " + (channel) + " :You have been removed as a channel operator\n")
+#define ERR_BANNEDFROMCHAN(user, channel) ( ":" + user->getName() + " 474 " + user->getNick() + " " + channel->getName() + " :You are banned from this channel\n" )
+#define RPL_UNBANUSER(user, channel) (":" + user->getName() + " MODE " + channel->getName() + " -b " + user->getNick() + " : You have been unbanned from this channel\r\n")
 
 //TOPIC
 #define RPL_TOPIC(user, channel, topic) (":" + (user)->getName() + " 332 " + (user)->getNick() + " " + (channel) + " :" + (topic) + "\n")

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:08:36 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/20 16:23:20 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/21 00:00:20 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,27 +32,49 @@ class Server {
 		int	server_loop( void );
 		int	bind_and_listen( int listening, int port);
 		
+		////////// getters //////////
 		std::string getPassword( void ) const;
 		std::string getHostName( void ) const;
-		pollfd		*getAllPollfds( void ) const;
-		pollfd		getPollfd( int index ) const;
 		int			getSocket( void ) const;
 		int			getClientNbr( void ) const;
-		void		clientNbrIncr( void );
-		void		setPollfd( int index, int fd_value, int events_value, int revents_value);
-		User 		*user( int index );
-		std::list< User * > users;
-		std::list< Channel * > channels;
-		std::list< Channel * >::iterator find_channel( std::string channel_name );
-		User* find_user_by_nickname(const std::string& nickname);
-		void send_private_message(const std::string &sender_nickname, const std::string &recipient_nickname, const std::string &message);
+		
+		pollfd		*getAllPollfds( void ) const;
+		pollfd		getPollfd( int index ) const;
+		
+		std::list<Channel *>::iterator		find_channel( std::string channel_name );
+		std::list<User*>::iterator					getUsersBegin( void );
+		std::list<User*>::iterator					getUsersEnd( void );
+		std::list<Channel *>::iterator				getChannelsBegin( void );
+		std::list<Channel *>::iterator				getChannelsEnd( void );
+		
+		User *	get_user_by_nickname(const std::string& nickname);
+		User *	get_user_by_index( int index );
+		
+		bool	is_valid_oper(std::string & username, std::string & password);
+
 		sockaddr_in serverAddress;
 
-		bool is_valid_oper(std::string & username, std::string & password);
+		////////// setters //////////
+
+		void		setPollfd( int index, int fd_value, int events_value, int revents_value);
+		void		clientNbrIncr( void );
+		
+		void remove_channel(Channel* channel);
+		void add_to_Channels( Channel * channel);
+		
 		static Server* instance;
+
+		////////// methods //////////
+		void send_private_message(const std::string &sender_nickname, const std::string &recipient_nickname, const std::string &message);
+		
+		
 	private:
-		//canon
+		
 		Server( void );
+		
+		std::list< User * > users;
+		std::list< Channel * > channels;
+		
 		std::string		_adminUsername;
 		std::string		_adminPassword;
 		std::string		_password;

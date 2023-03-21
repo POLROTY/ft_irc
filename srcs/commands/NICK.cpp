@@ -6,7 +6,7 @@
 /*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:46:24 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/16 00:58:03 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/20 23:51:35 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,11 @@ bool isValidNickname(const std::string& nickname) {
 // Returns true if the nickname is in use, false otherwise.
 bool nickInUse(std::string nickToCheck, Server& srv) {
     // Iterate over the list of users on the server
-    std::list<User*>::iterator it = srv.users.begin();
-    std::list<User*>::iterator ite = srv.users.end();
+    std::list<User*>::iterator it = srv.getUsersBegin();
+    std::list<User*>::iterator ite = srv.getUsersEnd();
     while (it != ite) {
         // If the nickname is already in use, return true
-        if (nickToCheck == (*it)->getNick() && (*it)->isAlive ) {
+        if (nickToCheck == (*it)->getNick() && (*it)->isAlive && nickToCheck != "$") {
             return true;
         }
         it++;

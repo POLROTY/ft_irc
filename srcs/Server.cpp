@@ -119,6 +119,7 @@ int	Server::server_loop( void )
 		memset(buff, 0, sizeof(buff));
 		client_index++;
 	}
+	return EXIT_SUCCESS;
 }
 
 int	Server::bind_and_listen( int listening, int port ) {

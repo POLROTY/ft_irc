@@ -6,7 +6,7 @@
 /*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:19:21 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/20 18:48:48 by nfascia          ###   ########.fr       */
+/*   Updated: 2023/03/21 16:46:29 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,25 +34,37 @@
 #include <csignal>
 
 
-////////// class ////////// 
+////////// CLASS ////////// 
+
 #include "Server.hpp"
 #include "User.hpp"
 #include "macro.hpp"
 class Server;
 
-////////// utils //////////
+////////// UTILS //////////
 
 bool	is_string_digit( char *str );
 bool	arguments_check( int argc, char *str );
 void 	signalHandler(int signum);
 
-/////////// FUNCTIONS IN SRCS/COMMANDS/NICK.CPP //////////
+/////////// CMD FUNCTIONS //////////
 
+void	handshake(User *user);
 bool	isValidNickname( const std::string & nickname );
 bool	nickInUse( std::string nickToCheck, Server & srv );
-
-/////////// FUNCTIONS IN SRCS/EXECUTE.CPP //////////
-
-void	stream( int client_index, Server & srv ); 
+void	stream( int client_index, Server & srv );
+void	cap_cmd(std::istringstream *iss, std::string word);
+void	ls_cmd(User *user);
+void	pass_cmd(std::istringstream *iss, std::string *word, User *user, Server &srv);
+void	nick_cmd(std::istringstream *iss, std::string *word, User *user, Server &srv);
+void	user_cmd(std::istringstream *iss, std::string *word, User *user);
+void	ping_cmd(std::istringstream *iss, std::string word, User *user);
+void	who_cmd(std::istringstream *iss, std::string *word, User *user, Server &srv);
+void	oper_cmd(std::istringstream *iss, User *user, Server &srv);
+void	whois_cmd(std::istringstream *iss, std::string word, User *user, Server &srv);
+void	join_cmd(std::istringstream *iss, std::string word, User *user, Server &srv);
+void	part_cmd(std::istringstream *iss, std::string word, User *user, Server &srv);
+void	topic_cmd(std::istringstream *iss, std::string word, User *user, Server &srv);
+void	privmsg_cmd(std::istringstream *iss, std::string word, User *user, Server &srv);
 
 #endif

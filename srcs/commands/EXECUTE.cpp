@@ -38,23 +38,11 @@ void stream( int client_index, Server & srv ) {
 	if (iss >> word) {
 		
 		if ( word == "CAP" && !user->isPasswordChecked ) {
-			iss >> word;
+			cap_cmd(&iss, word);
 			if ( word == "LS" )
-				user->isIrssi = true;
+				ls_cmd(user);
 		} else if ( word == "PASS" ) {
-			
-			if ( iss >> word ) {
-				if ( word == srv.getPassword() ) {
-					user->isPasswordChecked = true;
-					user->isPasswordChecked = true;
-					std::cerr << "A user got password right" << std::endl;
-				} else {
-					if ( user->isIrssi )
-						user->isAlive = false;
-					std::string msg = ERR_PASSWDMISMATCH(user);
-					send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-				}
-			}
+			pass_cmd(&iss, &word, user, srv);
 		} else if ( !user->isPasswordChecked ) {
 			
 			user->isAlive = false;
@@ -62,59 +50,11 @@ void stream( int client_index, Server & srv ) {
 			send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 			
 		} else if (word == "NICK") {
-
-			if (iss >> word) {
-				std::string str;
-				if ( nickInUse(word,  srv) ) {
-					
-					user->setNick(word);
-					str = ERR_NICKNAMEINUSE(user);
-					send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
-					user->setNick("$");
-					
-				} else if ( !isValidNickname( word ) ) {
-					
-					str = ERR_ERRONEUSNICKNAME(user);
-					send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
-					
-				} else {
-
-					if ( user->isUserSet ) {
-						std::cerr << "SENT NICK MESSAGE" << std::endl;
-						str = NICK(user, word);
-						std::cerr << str << std::endl;
-						send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
-					}
-					user->setNick(word);			
-				}
-				if ( user->getNick() != "$" && user->getRealName() != "$" && !user->isUserSet ) {
-					user->isUserSet = true;
-					handshake( user );
-				}
-			}
+			nick_cmd(&iss, &word, user, srv);
 		} else if ( word == "USER" ) {
-			
-			if (iss >> word)
-			{
-				if (iss >> word)
-					user->setName( word );
-				if (iss >> word) {
-					
-					user->setHost( word );
-					
-					if ( user->getNick() != "$" && !user->isUserSet ) {
-						user->isUserSet = true;
-						handshake( user );
-					}
-				}
-			}
+			user_cmd(&iss, &word, user);
 		} else if (word == "PING") {
-
-			if (iss >> word) {
-				std::string str = PONG(user);
-				send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
-				std::cerr << str << std::endl;
-			}
+			ping_cmd(&iss, word, user);
 		} else if (word == "QUIT") {
 			user->isAlive = false;
 		} else if (word == "MODE") {
@@ -165,35 +105,9 @@ void stream( int client_index, Server & srv ) {
 			std::cerr << "You need to finish setting up the user before executing commands" << std::endl;
 			
 		} else if (word == "WHO") {
-            if (iss >> word) {
-                if (word[0] == '#') {
-                    std::list<Channel*>::iterator it = srv.find_channel(word);
-                    if (it != srv.getChannelsEnd()) {
-						if ((*it)->isBanned(user))
-							return;
-                        std::string msg = (*it)->who(user);
-                        send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-                    } else {
-                        std::string msg = ERR_NOSUCHCHANNEL(user, word);
-                        send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-                    }
-            	}
-			}
+            who_cmd(&iss, &word, user, srv);
 		} else if (word == "OPER") {
-             std::string username, password;
-            if (iss >> username >> password) {
-                if (srv.is_valid_oper(username, password)) {
-                    user->isServerOperator = true;
-                    std::string msg = RPL_YOUREOPER(user);
-                    send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-                } else {
-                    std::string msg = ERR_PASSWDMISMATCH(user);
-                    send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-                }
-            } else {
-                std::string msg = ERR_NEEDMOREPARAMS(user, "OPER");
-                send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-            }
+      oper_cmd(&iss, user, srv);      
 		} else if (word == "kill") {
 			std::string targetNickname, message;
 			if (iss >> targetNickname >> message) {
@@ -229,7 +143,7 @@ void stream( int client_index, Server & srv ) {
                 std::string msg = ERR_NONICKNAMEGIVEN(user);
                 send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
             }
-        } else if (word == "INVITE") {
+      } else if (word == "INVITE") {
 			std::string targetUserNick;
 			if (iss >> targetUserNick) { // Extract the user nickname to be invited
 				if (iss >> word) { // Extract the channel name
@@ -262,47 +176,6 @@ void stream( int client_index, Server & srv ) {
 						std::string msg = ERR_NOSUCHCHANNEL(user, word);
 						send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 					}
-				}
-			}
-		} else if (word == "JOIN") {
-			
-				iss >> word;
-				std::list<Channel*>::iterator it = srv.find_channel( word );
-				if (it == srv.getChannelsEnd() )
-				{	
-					srv.add_to_Channels(new Channel(word, user));
-					std::cerr << "User " << user->getNick() << " created channel " << word << std::endl;
-				} else {
-					Channel * tmp = *it;
-					if (tmp->isBanned(user))
-						return;
-					tmp->join( user );
-					std::string current_topic = (*it)->get_topic();
-					if (!current_topic.empty()) {
-						std::string msg = RPL_TOPIC(user, word, current_topic);
-						send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-					}
-					std::cerr << "User " << user->getNick() << " was added to channel " << tmp->getName() << std::endl;
-				}
-		} else if (word == "PART") {
-
-			if (iss >> word) { // Extract the channel name
-				std::list<Channel*>::iterator it = srv.find_channel(word);
-				if (it != srv.getChannelsEnd()) {
-					// Remove the user from the channel
-					Channel *channel = *it;
-					if (channel->has_user(user)) {
-						channel->part(user);
-						if (channel->is_operator_empty())
-							srv.remove_channel(channel);
-					} else {
-						std::string msg = ERR_NOSUCHUSERINCHANNEL(user, word, user->getNick());
-						send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-					}
-				} else {
-					// Handle the case where the channel was not found
-					std::string msg = ERR_NOSUCHCHANNEL(user, word);
-					send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 				}
 			}
 		} else if (word == "KICK") {
@@ -343,77 +216,17 @@ void stream( int client_index, Server & srv ) {
 				std::string msg = ERR_NEEDMOREPARAMS(user, "KICK");
 				send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 			}
+		} else if (word == "WHOIS") {
+			whois_cmd(&iss, word, user, srv);
+    } else if (word == "JOIN") {
+			join_cmd(&iss, word, user, srv);
+		} else if (word == "PART") {
+			part_cmd(&iss, word, user, srv);
 		} else if (word == "TOPIC") {
-			if (iss >> word) { // Extract the channel name
-				std::list<Channel*>::iterator it = srv.find_channel(word);
-				if (it != srv.getChannelsEnd() ) {
-					std::string new_topic;
-					if ((*it)->isBanned(user))
-						return;
-					if (getline(iss, new_topic, ':')) { // If a new topic is specified
-						getline(iss, new_topic); // Read the rest of the new topic
-						// Remove any trailing newline characters from the new topic
-						new_topic.erase(std::remove(new_topic.begin(), new_topic.end(), '\n'), new_topic.end());
-						new_topic.erase(std::remove(new_topic.begin(), new_topic.end(), '\r'), new_topic.end());
-
-						// Set the new topic for the channel
-						(*it)->set_topic(new_topic);
-						(*it)->broadcast_new_topic();
-					} else {
-						// If no new topic is specified, return the current topic
-						std::string current_topic = (*it)->get_topic();
-						std::string msg = RPL_TOPIC(user, word, current_topic);
-						send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-					}
-				} else {
-					std::string msg = ERR_NOSUCHCHANNEL(user, word);
-					send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-				}
-			}
-        } else if (word == "PRIVMSG") {
-				iss >> word; // Extract the target (channel or user nickname)
-
-				// Check if the target is a channel (starts with a '#' character)
-				if (word[0] == '#') {
-					std::list<Channel*>::iterator it = srv.find_channel(word);
-					if (it != srv.getChannelsEnd()) {
-						// Broadcast the message to the channel
-						if(!(*it)->has_user(user)) {
-							std::string msg = ERR_NOSUCHUSERINCHANNEL(user, word, user->getNick());
-							send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-							return;
-						}
-						if ((*it)->isBanned(user))
-							return;
-						getline(iss, word, ':'); // Skip the colon before the message content
-						std::string message;
-						getline(iss, message); // Read the rest of the message
-
-						// Remove any trailing newline characters from the message
-						message.erase(std::remove(message.begin(), message.end(), '\n'), message.end());
-						message.erase(std::remove(message.begin(), message.end(), '\r'), message.end());
-
-						(*it)->broadcast(word + message, user);
-					} else {
-						std::string msg = ERR_NOSUCHCHANNEL(user, word);
-						send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-					}
-				} else {
-					// The target is a user nickname
-					std::string receiver_nickname = word;
-					getline(iss, word, ':'); // Skip the colon before the message content
-					std::string message;
-					getline(iss, message); // Read the rest of the message
-
-					// Remove any trailing newline characters from the message
-					message.erase(std::remove(message.begin(), message.end(), '\n'), message.end());
-					message.erase(std::remove(message.begin(), message.end(), '\r'), message.end());
-
-					// Send the private message to the target user
-					srv.send_private_message(user->getNick(), receiver_nickname, message);
-				}
+			topic_cmd(&iss, word, user, srv);
+    } else if (word == "PRIVMSG") {
+			privmsg_cmd(&iss, word, user, srv);
 		} else {
-
 			// std::string str = ":" + user->getName() + " 404 " + user->getNick() + " :" + user->getHost() + " UNKNOWN COMMAND YET\n" ;
 			// send( user->getFd(), str.c_str(), str.length(), ERR_NOTIMPLEMENTED );
 			send(user->getFd(),  ERR_NOTIMPLEMENTED(word).c_str(), ERR_NOTIMPLEMENTED(word).length(), MSG_NOSIGNAL);

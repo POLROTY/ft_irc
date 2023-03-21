@@ -3,18 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/20 18:44:31 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/21 00:01:22 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "irc.hpp"
 #include "Server.hpp"
-#include <csignal> // for signal()
-#include <cstdlib>
 
-//canon
 
 ////////// methods //////////
 Server::Server( void ) {
@@ -36,17 +34,6 @@ Server &Server::operator=( const Server & toTheRight ) {
 	return (*this);
 }
 
-Server::~Server( void ) {
-	for (std::list<User*>::iterator it = Server::instance->users.begin(); it != Server::instance->users.end(); ++it) {
-		delete (*it);
-	}
-	for (std::list<Channel*>::iterator it = Server::instance->channels.begin(); it != Server::instance->channels.end(); ++it) {
-		delete (*it);
-	}
-	delete[] this->_poll_fds;
-	return;
-}
-
 Server::Server( std::string const hostName, std::string const password, int fd ) {
 	this->_password = password;
 	this->_hostName = hostName;
@@ -60,131 +47,19 @@ Server::Server( std::string const hostName, std::string const password, int fd )
 	return;
 }
 
-User * Server::user( int userIndex ) {
-	int index = 1;
 
-	std::list< User * >::iterator it = this->users.begin();
-	std::list< User * >::iterator ite = this->users.end();
-	while (index != userIndex) {
-		
-		index++;
-		it++;
-		if (it == ite)
-			std::cerr << "Error : User in Server ite problem" << std::endl;
+
+Server::~Server( void ) {
+	for (std::list<User*>::iterator it = this->users.begin(); it != this->users.end(); ++it) {
+		delete (*it);
 	}
-	return (*it);
-}
-
-std::list< Channel * >::iterator Server::find_channel( std::string channel_name ) {
-	
-
-	std::list< Channel * >::iterator it = this->channels.begin();
-	std::list< Channel * >::iterator ite = this->channels.end();
-	while (it != ite) {
-		Channel * tmp = *it;
-		if ( tmp->getName() == channel_name )
-			return ( it );
-		it++;
+	for (std::list<Channel*>::iterator it = this->channels.begin(); it != this->channels.end(); ++it) {
+		delete (*it);
 	}
-	return (it);
+	delete[] this->_poll_fds;
+	return;
 }
 
-
-////////// getters //////////
-std::string Server::getPassword( void ) const {
-	return (this->_password);
-}
-
-std::string Server::getHostName( void ) const {
-	return (this->_hostName);
-}
-
-pollfd		*Server::getAllPollfds( void ) const {
-	return (this->_poll_fds);
-}
-
-int			Server::getClientNbr( void ) const {
-	return (this->_clientNbr);
-}
-
-int			Server::getSocket( void ) const {
-	return (this->_socket);
-}
-
-pollfd		Server::getPollfd( int index ) const {
-	return (this->_poll_fds[index]);
-}
-
-////////// setters //////////
-void		Server::clientNbrIncr( void ) {
-	this->_clientNbr += 1;
-}
-
-void		Server::setPollfd( int index, int fd_value, int events_value, int revents_value) {
-	this->_poll_fds[index].fd = fd_value;
-	this->_poll_fds[index].events = events_value;
-	this->_poll_fds[index].revents = revents_value;
-}
-
-
-////////// functions //////////
-
-
-int	Server::bind_and_listen( int listening, int port ) {
-	this->serverAddress.sin_family = AF_INET;
-	this->serverAddress.sin_port = htons(port);
-	inet_pton(AF_INET, "0.0.0.0", &this->serverAddress.sin_addr);
-	if (bind( listening, reinterpret_cast< sockaddr * >( &this->serverAddress ), sizeof( this->serverAddress )) < 0 ) {
-		std::cerr << "Error : cannot bind to IP/Port." << std::endl;
-		return (EXIT_FAILURE);
-	}
-
-	if ( listen(listening, SOMAXCONN) < 0 ) {
-		std::cerr << "Error : cannot listen to the IP/Port." << std::endl;
-		return (EXIT_FAILURE);
-	}
-	return (0);
-}
-
-User* Server::find_user_by_nickname(const std::string& nickname) {
-    for (std::list<User*>::iterator it = users.begin(); it != users.end(); ++it) {
-        if ((*it)->getNick() == nickname) {
-            return *it;
-        }
-    }
-    return NULL;
-}
-
-void Server::send_private_message(const std::string& sender_nickname, const std::string& recipient_nickname, const std::string& message) {
-    User* sender = find_user_by_nickname(sender_nickname);
-    User* recipient = find_user_by_nickname(recipient_nickname);
-
-    if (sender == NULL || recipient == NULL) {
-        // Either sender or recipient not found
-        return;
-    }
-
-    std::string formatted_message = ":" + sender->getName() + " PRIVMSG " + recipient->getNick() + " :" + message + "\r\n";
-	send(recipient->getFd(), formatted_message.c_str(), formatted_message.size(), 0);
-}
-
-bool Server::is_valid_oper(std::string &username, std::string &password)
-{
-	if ( username == this->_adminUsername && password == this->_adminPassword )
-		return true;
-	return false;
-}
-
-void signalHandler(int signum) {
-    if (signum == SIGINT) {
-        // ctrl+C was pressed
-		if (Server::instance) {
-        	delete Server::instance;
-		}
-		std::cerr << std::endl << std::endl << "The server has shut down" << std::endl << std::endl;
-        exit(signum);
-    }
-}
 
 int	Server::server_loop( void )
 {
@@ -221,22 +96,22 @@ int	Server::server_loop( void )
 			}
 		}
 		if (srv->getClientNbr()) {
-			if (srv->getPollfd(client_index).revents & POLLIN && srv->user(client_index)->isAlive) {	
+			if (srv->getPollfd(client_index).revents & POLLIN && srv->get_user_by_index(client_index)->isAlive) {	
 				int bytesRecv = recv(srv->getPollfd(client_index).fd, buff, 4096, 0);
 				if (bytesRecv < 0) {
 
 					std::cout << " Client " << client_index << " disconected" << std::endl;
-					srv->user(client_index)->isAlive = false;
+					srv->get_user_by_index(client_index)->isAlive = false;
 				} else if (bytesRecv != 0) {
 					
 					std::string strBuff = std::string(buff, 0, bytesRecv);
 					std::cout << "Received : [" << strBuff << "] from user " << client_index <<std::endl;
-					srv->user(client_index)->appendBuff(strBuff);
+					srv->get_user_by_index(client_index)->appendBuff(strBuff);
 				} else {
-					srv->user(client_index)->isAlive = false;
+					srv->get_user_by_index(client_index)->isAlive = false;
 				}
 			}
-			if (!srv->users.empty() && srv->user(client_index)->isAlive) {
+			if (!srv->users.empty() && srv->get_user_by_index(client_index)->isAlive) {
 				stream(client_index, *srv);
 			}
 		}
@@ -244,3 +119,156 @@ int	Server::server_loop( void )
 		client_index++;
 	}
 }
+
+int	Server::bind_and_listen( int listening, int port ) {
+	this->serverAddress.sin_family = AF_INET;
+	this->serverAddress.sin_port = htons(port);
+	inet_pton(AF_INET, "0.0.0.0", &this->serverAddress.sin_addr);
+	if (bind( listening, reinterpret_cast< sockaddr * >( &this->serverAddress ), sizeof( this->serverAddress )) < 0 ) {
+		std::cerr << "Error : cannot bind to IP/Port." << std::endl;
+		return (EXIT_FAILURE);
+	}
+
+	if ( listen(listening, SOMAXCONN) < 0 ) {
+		std::cerr << "Error : cannot listen to the IP/Port." << std::endl;
+		return (EXIT_FAILURE);
+	}
+	return (0);
+}
+
+void Server::send_private_message(const std::string& sender_nickname, const std::string& recipient_nickname, const std::string& message) {
+    User* sender = get_user_by_nickname(sender_nickname);
+    User* recipient = get_user_by_nickname(recipient_nickname);
+
+    if (sender == NULL || recipient == NULL) {
+        // Either sender or recipient not found
+        return;
+    }
+
+    std::string formatted_message = ":" + sender->getName() + " PRIVMSG " + recipient->getNick() + " :" + message + "\r\n";
+	send(recipient->getFd(), formatted_message.c_str(), formatted_message.size(), 0);
+}
+
+
+
+////////// getters //////////
+
+
+
+std::string Server::getPassword( void ) const {
+	return (this->_password);
+}
+
+std::string Server::getHostName( void ) const {
+	return (this->_hostName);
+}
+
+pollfd		*Server::getAllPollfds( void ) const {
+	return (this->_poll_fds);
+}
+
+int			Server::getClientNbr( void ) const {
+	return (this->_clientNbr);
+}
+
+int			Server::getSocket( void ) const {
+	return (this->_socket);
+}
+
+pollfd		Server::getPollfd( int index ) const {
+	return (this->_poll_fds[index]);
+}
+
+User * Server::get_user_by_index( int userIndex ) {
+	int index = 1;
+
+	std::list< User * >::iterator it = this->users.begin();
+	std::list< User * >::iterator ite = this->users.end();
+	while (index != userIndex) {
+		
+		index++;
+		it++;
+		if (it == ite)
+			std::cerr << "Error : User in Server ite problem" << std::endl;
+	}
+	return (*it);
+}
+
+User* Server::get_user_by_nickname(const std::string& nickname) {
+    for (std::list<User*>::iterator it = users.begin(); it != users.end(); ++it) {
+        if ((*it)->getNick() == nickname) {
+            return *it;
+        }
+    }
+    return NULL;
+}
+
+std::list<User *>::iterator	 Server::getUsersBegin( void ) {
+	return users.begin();
+}
+
+std::list<User *>::iterator	 Server::getUsersEnd( void ) {
+	return users.end();
+}
+
+std::list<Channel *>::iterator	 Server::getChannelsBegin( void ) {
+	return channels.begin();
+}
+
+std::list<Channel *>::iterator	 Server::getChannelsEnd( void ) {
+	return channels.end();
+}
+
+std::list< Channel * >::iterator Server::find_channel( std::string channel_name ) {
+	
+
+	std::list< Channel * >::iterator it = this->channels.begin();
+	std::list< Channel * >::iterator ite = this->channels.end();
+	while (it != ite) {
+		Channel * tmp = *it;
+		if ( tmp->getName() == channel_name )
+			return ( it );
+		it++;
+	}
+	return (it);
+}
+
+bool Server::is_valid_oper(std::string &username, std::string &password)
+{
+	if ( username == this->_adminUsername && password == this->_adminPassword )
+		return true;
+	return false;
+}
+
+
+
+////////// setters //////////
+
+
+
+void		Server::clientNbrIncr( void ) {
+	this->_clientNbr += 1;
+}
+
+void Server::add_to_Channels(Channel* channel) {
+	this->channels.push_back(channel);
+}
+
+void		Server::setPollfd( int index, int fd_value, int events_value, int revents_value) {
+	this->_poll_fds[index].fd = fd_value;
+	this->_poll_fds[index].events = events_value;
+	this->_poll_fds[index].revents = revents_value;
+}
+
+void Server::remove_channel(Channel* channel) {
+    std::list<Channel*>::iterator it = std::find(channels.begin(), channels.end(), channel);
+    if (it != channels.end()) {
+        channels.erase(it);
+        delete channel;
+    }
+}
+
+
+
+////////// functions //////////
+

@@ -6,7 +6,7 @@
 /*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:19:21 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/15 21:59:06 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/20 22:12:05 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 #include <list>
 #include <sstream>
 #include <algorithm>
+#include <csignal> 
 
 ////////// class ////////// 
 #include "Server.hpp"
@@ -42,6 +43,7 @@ class Server;
 
 bool	is_string_digit( char *str );
 bool	arguments_check( int argc, char *str );
+void 	signalHandler(int signum);
 
 /////////// FUNCTIONS IN SRCS/COMMANDS/NICK.CPP //////////
 

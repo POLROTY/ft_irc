@@ -8,6 +8,11 @@ void	privmsg_cmd(std::istringstream *iss, std::string word, User *user, Server &
 		std::list<Channel*>::iterator it = srv.find_channel(word);
 		if (it != srv.getChannelsEnd()) {
 		// Broadcast the message to the channel
+			if ((*it)->has_user(user)) {
+				std::string msg = ERR_NOSUCHUSERINCHANNEL(user, word, user->getNick());
+				send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+				return;
+			}
 			if ((*it)->isBanned(user))
 				return;
 			getline(*iss, word, ':'); // Skip the colon before the message content
@@ -18,8 +23,8 @@ void	privmsg_cmd(std::istringstream *iss, std::string word, User *user, Server &
 			message.erase(std::remove(message.begin(), message.end(), '\r'), message.end());
 			(*it)->broadcast(word + message, user);
 		} else {
-			// Handle the case where the channel was not found
-			// (e.g., send an error message back to the user)
+			std::string msg = ERR_NOSUCHCHANNEL(user, word);
+            send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 		}
 	} else {
 			// The target is a user nickname

@@ -41,6 +41,8 @@
 #define PRIVMSGCHAN(sender, recv, word) (": " + user->getName() + " PRIVMSG " + recv->getNick() + " :" + word + "\r\n")
 #define ERR_NOSUCHCHANNEL(user, channel) (":" + user->getName() + " 403 " + user->getNick() + " " + channel + " :No such channel\r\n")
 #define ERR_NOSUCHUSERINCHANNEL(user, channel, target) (":" + (user)->getName() + " 441 " + (user)->getNick() + " " + (target) + " " + (channel) + " :No such user in channel\n")
+#define ERR_USERONCHANNEL(user, nick, channel) ( ":" + user->getHost() + " 443 " + user->getNick() + " " + nick + " " + channel + " :is already on channel\n" )
+#define ERR_NOTONCHANNEL(user, channel) ( ":" + user->getHost() + " 442 " + user->getNick() + " " + channel + " :You're not on that channel" + "\n" )
 #define RPL_ADDEDCHANOPER(user, channel) (":" + (user)->getName() + " 482 " + (user)->getNick() + " " + (channel) + " :You have been added as a channel operator\n")
 #define RPL_REMOVEDCHANOPER(user, channel) (":" + (user)->getName() + " 482 " + (user)->getNick() + " " + (channel) + " :You have been removed as a channel operator\n")
 #define ERR_BANNEDFROMCHAN(user, channel) ( ":" + user->getName() + " 474 " + user->getNick() + " " + channel->getName() + " :You are banned from this channel\n" )
@@ -51,6 +53,8 @@
 
 //OPER
 #define RPL_YOUREOPER(user) (":" + (user)->getName() + " 381 " + (user)->getNick() + " :You are now an IRC operator\r\n")
+#define ERR_NOPRIVILEGES(user) ( ":" + user->getHost() + " 481 " + user->getNick() + " :Permission Denied- You're not an IRC operator\r\n" )
+#define ERR_YOUDEAD(victim, killer) ( ":" + victim->getHost() + " 483 " + victim->getNick() + " :You have been killed from server by the IRC operator : " + killer->getNick() + "\r\n" )
 
 #define ERR_NEEDMOREPARAMS(user, command) (":" + (user)->getName() + " 461 " + (user)->getNick() + " " + (command) + " :Not enough parameters\r\n")
 

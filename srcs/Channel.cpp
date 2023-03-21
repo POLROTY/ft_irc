@@ -223,8 +223,9 @@ void Channel::part(User* user) {
     users.erase(std::remove(users.begin(), users.end(), user), users.end());
     // If the user is an operator, remove them from the operators list as well
     operators.erase(std::remove(operators.begin(), operators.end(), user), operators.end());
-    std::string info = ":" + user->getNick() + " PART " + name + "\r\n";
+    std::string info = ":" + user->getName() + " PART " + name + " " + user->getNick() +"\r\n";
     broadcast_info(info);
+	send(user->getFd(), info.c_str(), info.length(), MSG_NOSIGNAL);
     // Assign operator privileges to another user if the channel is not empty
     if (!users.empty() && operators.empty()) {
         for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
@@ -232,5 +233,49 @@ void Channel::part(User* user) {
             if (user->isAlive)
                 add_to_operators(user);
         }
+    }
+}
+
+void Channel::invite(User *user, User *targetUser) {
+
+	if (has_user(targetUser)) {
+		std::string msg = ERR_USERONCHANNEL(user, targetUser->getNick(), getName());
+		send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+	} else {
+		std::string msg = ":" + user->getName() + " INVITE " + targetUser->getNick() + " " + getName() + "\n";
+		send(targetUser->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+	}
+}
+
+void Channel::kick(User *source, User *target, const std::string &reason) {
+    if (has_user(target)) {
+        // Remove the target from the channel's user list
+        users.erase(std::remove(users.begin(), users.end(), target), users.end());
+    	// If the target is an operator, remove them from the operators list as well
+    	operators.erase(std::remove(operators.begin(), operators.end(), target), operators.end());
+
+        // Format the kick message
+        std::string kickMessage = ":" + source->getName() + " KICK " + name + " " + target->getNick();
+
+        if (!reason.empty()) {
+            kickMessage += " :" + reason;
+        }
+
+        kickMessage += "\r\n";
+
+        // Send the kick message to all users in the channel
+        broadcast_info(kickMessage);
+
+        // Send the kick message to the kicked user
+        send(target->getFd(), kickMessage.c_str(), kickMessage.length(), MSG_NOSIGNAL);
+
+        // If the target user was an operator, remove them from the operator list
+        if (!users.empty() && operators.empty()) {
+			for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
+				User* user = *it;
+				if (user->isAlive)
+					add_to_operators(user);
+        }
+    }
     }
 }

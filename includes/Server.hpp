@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:08:36 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/21 00:00:20 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/20 19:02:05 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,15 +23,11 @@ class Channel;
 class Server {
 
 	public :
-		//canon
 		Server( const Server & to_copy );
 		Server & operator=( const Server & toTheRight );
 		~Server( void );
-
 		Server( std::string const password, std::string const hostName, int socket);
-		int	server_loop( void );
-		int	bind_and_listen( int listening, int port);
-		
+    
 		////////// getters //////////
 		std::string getPassword( void ) const;
 		std::string getHostName( void ) const;
@@ -66,10 +62,10 @@ class Server {
 
 		////////// methods //////////
 		void send_private_message(const std::string &sender_nickname, const std::string &recipient_nickname, const std::string &message);
-		
+		int			server_loop( void );
+		int			bind_and_listen( int listening, int port);
 		
 	private:
-		
 		Server( void );
 		
 		std::list< User * > users;
@@ -82,6 +78,7 @@ class Server {
 		int				_socket;
 		int				_clientNbr;
 		pollfd			*_poll_fds;
+		int				is_running;
 };
 
 

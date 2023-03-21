@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   irc.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:19:21 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/20 22:12:05 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/20 18:48:48 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@
 #include <list>
 #include <sstream>
 #include <algorithm>
-#include <csignal> 
+#include <csignal>
+
 
 ////////// class ////////// 
 #include "Server.hpp"

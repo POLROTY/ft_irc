@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/21 00:01:22 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/20 18:57:05 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,12 +44,14 @@ Server::Server( std::string const hostName, std::string const password, int fd )
 	this->_clientNbr = 0;
 	this->_adminUsername = "ADMIN";
 	this->_adminPassword = "ADMIN";
+	this->is_running = true;
 	return;
 }
 
 
 
 Server::~Server( void ) {
+  this->is_running = false;
 	for (std::list<User*>::iterator it = this->users.begin(); it != this->users.end(); ++it) {
 		delete (*it);
 	}
@@ -60,7 +62,6 @@ Server::~Server( void ) {
 	return;
 }
 
-
 int	Server::server_loop( void )
 {
 	Server *srv = this;
@@ -68,7 +69,7 @@ int	Server::server_loop( void )
 	socklen_t	serverAddressLen = sizeof(this->serverAddress);
 	int	current_client_fd;
 	int client_index = 1;
-	while (true) {
+	while (this->is_running) {
 
 		signal(SIGINT, signalHandler);
 		if (client_index > srv->getClientNbr()) {
@@ -240,11 +241,7 @@ bool Server::is_valid_oper(std::string &username, std::string &password)
 	return false;
 }
 
-
-
 ////////// setters //////////
-
-
 
 void		Server::clientNbrIncr( void ) {
 	this->_clientNbr += 1;
@@ -258,6 +255,7 @@ void		Server::setPollfd( int index, int fd_value, int events_value, int revents_
 	this->_poll_fds[index].fd = fd_value;
 	this->_poll_fds[index].events = events_value;
 	this->_poll_fds[index].revents = revents_value;
+
 }
 
 void Server::remove_channel(Channel* channel) {
@@ -271,4 +269,5 @@ void Server::remove_channel(Channel* channel) {
 
 
 ////////// functions //////////
+
 

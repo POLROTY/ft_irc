@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   NICK.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:46:24 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/20 23:51:35 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/21 15:46:06 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,4 +49,32 @@ bool nickInUse(std::string nickToCheck, Server& srv) {
     }
     // The nickname is not in use
     return false;
+}
+
+void	nick_cmd(std::istringstream *iss, std::string *word, User *user, Server &srv)
+{
+	if (*iss >> *word) {
+		std::string str;
+		if ( nickInUse(*word,  srv)) {
+				user->setNick(*word);
+				str = ERR_NICKNAMEINUSE(user);
+				send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
+				user->setNick("$");	
+				} else if (!isValidNickname(*word)) {
+					str = ERR_ERRONEUSNICKNAME(user);
+					send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
+				} else {
+					if (user->isUserSet) {
+						std::cerr << "SENT NICK MESSAGE" << std::endl;
+						str = NICK(user, *word);
+						std::cerr << str << std::endl;
+						send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
+					}
+					user->setNick(*word);			
+				}
+				if (user->getNick() != "$" && user->getRealName() != "$" && !user->isUserSet) {
+					user->isUserSet = true;
+					handshake(user);
+				}
+			}
 }

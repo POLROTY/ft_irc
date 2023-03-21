@@ -6,7 +6,19 @@ SRC			= main.cpp \
 			  utils.cpp \
 			  Channel.cpp \
 			  commands/EXECUTE.cpp \
-			  commands/NICK.cpp
+			  commands/NICK.cpp \
+			  commands/CAP.cpp \
+			  commands/LS.cpp \
+			  commands/PASS.cpp \
+			  commands/USER.cpp \
+			  commands/PING.cpp \
+			  commands/WHO.cpp \
+			  commands/OPER.cpp \
+			  commands/WHOIS.cpp \
+			  commands/JOIN.cpp \
+			  commands/PART.cpp \
+			  commands/TOPIC.cpp \
+			  commands/PRIVMSG.cpp
 
 SRCSPATH 	= srcs
 

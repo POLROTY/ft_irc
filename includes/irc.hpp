@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   irc.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:19:21 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/21 16:46:29 by nfascia          ###   ########.fr       */
+/*   Updated: 2023/03/21 19:00:41 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,5 +66,9 @@ void	join_cmd(std::istringstream *iss, std::string word, User *user, Server &srv
 void	part_cmd(std::istringstream *iss, std::string word, User *user, Server &srv);
 void	topic_cmd(std::istringstream *iss, std::string word, User *user, Server &srv);
 void	privmsg_cmd(std::istringstream *iss, std::string word, User *user, Server &srv);
+void	invite_cmd(std::istringstream *iss, std::string word, User *user, Server &srv);
+void	kick_cmd(std::istringstream *iss, User *user, Server &srv);
+void	kill_cmd(std::istringstream *iss, User *user, Server &srv);
+void	mode_cmd(std::istringstream *iss, User *user, Server &srv);
 
 #endif

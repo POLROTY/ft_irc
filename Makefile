@@ -18,6 +18,10 @@ SRC			= main.cpp \
 			  commands/JOIN.cpp \
 			  commands/PART.cpp \
 			  commands/TOPIC.cpp \
+			  commands/INVITE.cpp \
+			  commands/KICK.cpp \
+			  commands/KILL.cpp \
+			  commands/MODE.cpp \
 			  commands/PRIVMSG.cpp
 
 SRCSPATH 	= srcs

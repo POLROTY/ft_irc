@@ -69,6 +69,7 @@ public:
     void broadcast_info(const std::string& info);
 	void part(User *user);
     std::string who(User *requester);
+	void invite(User *user, User *targetUser);
 
 private:
     std::string topic;

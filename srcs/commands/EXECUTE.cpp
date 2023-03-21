@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EXECUTE.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:52:22 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/21 01:27:51 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/21 16:44:55 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,8 @@ void stream( int client_index, Server & srv ) {
 				send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
 				std::cerr << str << std::endl;
 			}
+		} else if (word == "QUIT") {
+			user->isAlive = false;
 		} else if (word == "MODE") {
 
 			std::string target, mode_changes, target_user_nick;
@@ -192,6 +194,27 @@ void stream( int client_index, Server & srv ) {
                 std::string msg = ERR_NEEDMOREPARAMS(user, "OPER");
                 send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
             }
+		} else if (word == "kill") {
+			std::string targetNickname, message;
+			if (iss >> targetNickname >> message) {
+				User* targetUser = srv.get_user_by_nickname(targetNickname);
+				if (targetUser) {
+					if (user->isServerOperator) {
+						std::string msg = ERR_YOUDEAD(targetUser, user);
+						send(targetUser->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+						targetUser->isAlive = false;
+					} else {
+						std::string msg = ERR_NOPRIVILEGES(user);
+						send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+					}
+				} else {
+					std::string msg = ERR_NOSUCHNICK(user, targetNickname);
+					send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+				}
+			} else {
+				std::string msg = ERR_NEEDMOREPARAMS(user, "KILL");
+				send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+			}
 		} else if (word == "WHOIS") {
             if (iss >> word) {
                 User* targetUser = srv.get_user_by_nickname(word);
@@ -206,7 +229,42 @@ void stream( int client_index, Server & srv ) {
                 std::string msg = ERR_NONICKNAMEGIVEN(user);
                 send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
             }
-        } else if (word == "JOIN") {
+        } else if (word == "INVITE") {
+			std::string targetUserNick;
+			if (iss >> targetUserNick) { // Extract the user nickname to be invited
+				if (iss >> word) { // Extract the channel name
+					std::list<Channel*>::iterator it = srv.find_channel(word);
+					if (it != srv.getChannelsEnd()) {
+						// Check if the user is in the channel
+						Channel *channel = *it;
+						if (channel->isBanned(user))
+							return;
+						if (channel->has_user(user) || user->isServerOperator) {
+							// Check if the user has operator status in the channel
+							if (channel->is_operator(user) || user->isServerOperator) {
+								User* targetUser = srv.get_user_by_nickname(targetUserNick);
+								if (targetUser) {
+									// Invite the user to the channel
+									channel->invite(user, targetUser);
+								} else {
+									std::string msg = ERR_NOSUCHNICK(user, word);
+									send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+								}
+							} else {
+								std::string msg = ERR_CHANOPRIVSNEEDED(user, word);
+								send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+							}
+						} else {
+							std::string msg = ERR_NOTONCHANNEL(user, word);
+							send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+						}
+					} else {
+						std::string msg = ERR_NOSUCHCHANNEL(user, word);
+						send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+					}
+				}
+			}
+		} else if (word == "JOIN") {
 			
 				iss >> word;
 				std::list<Channel*>::iterator it = srv.find_channel( word );

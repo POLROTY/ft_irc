@@ -234,3 +234,14 @@ void Channel::part(User* user) {
         }
     }
 }
+
+void Channel::invite(User *user, User *targetUser) {
+
+	if (has_user(targetUser)) {
+		std::string msg = ERR_USERONCHANNEL(user, targetUser->getNick(), getName());
+		send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+	} else {
+		std::string msg = ":" + user->getName() + " INVITE " + targetUser->getNick() + " " + getName() + "\n";
+		send(targetUser->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+	}
+}

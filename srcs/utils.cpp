@@ -24,11 +24,13 @@ bool	arguments_check( int argc, char *str ) {
 	return (EXIT_SUCCESS);
 }
 
-void	sighandler(int signal)
-{
-	if (signal == SIGINT)
-	{
-		delete Server::instance;
-		exit(1);
-	}
+void signalHandler(int signum) {
+    if (signum == SIGINT) {
+        // ctrl+C was pressed
+		if (Server::instance) {
+        	delete Server::instance;
+		}
+		std::cerr << std::endl << std::endl << "The server has shut down" << std::endl << std::endl;
+        exit(signum);
+    }
 }

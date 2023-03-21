@@ -6,23 +6,25 @@
 /*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:52:22 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/19 16:21:05 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/21 01:27:51 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "irc.hpp"
 
-void handshake( User *user ) {
+void handshake(User *user) {
+
 	user->printInfo();
     send(user->getFd(), RPL_WELCOME(user).c_str(), RPL_WELCOME(user).length(), MSG_NOSIGNAL);
 	send(user->getFd(), RPL_YOURHOST(user).c_str(), RPL_YOURHOST(user).length(), MSG_NOSIGNAL);
 	send(user->getFd(), RPL_CREATED(user).c_str(), RPL_CREATED(user).length(), MSG_NOSIGNAL);
 	send(user->getFd(), RPL_MYINFO(user).c_str(), RPL_MYINFO(user).length(), MSG_NOSIGNAL);
 	send(user->getFd(), NICK(user, user->getNick() ).c_str(), NICK(user, user->getNick() ).length(), MSG_NOSIGNAL);
+
 }
 
 void stream( int client_index, Server & srv ) {
-	User * user = srv.user(client_index);
+	User * user = srv.get_user_by_index(client_index);
 
 	std::string::size_type pos = user->getBuff().find_first_of('\n');
 	if (pos == std::string::npos)
@@ -68,7 +70,7 @@ void stream( int client_index, Server & srv ) {
 					user->setNick(word);
 					str = ERR_NICKNAMEINUSE(user);
 					send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
-					user->clearNick();
+					user->setNick("$");
 					
 				} else if ( !isValidNickname( word ) ) {
 					
@@ -85,7 +87,7 @@ void stream( int client_index, Server & srv ) {
 					}
 					user->setNick(word);			
 				}
-				if ( !user->getNick().empty() && !user->getRealName().empty() && !user->isUserSet ) {
+				if ( user->getNick() != "$" && user->getRealName() != "$" && !user->isUserSet ) {
 					user->isUserSet = true;
 					handshake( user );
 				}
@@ -100,7 +102,7 @@ void stream( int client_index, Server & srv ) {
 					
 					user->setHost( word );
 					
-					if ( !user->getNick().empty() && !user->isUserSet ) {
+					if ( user->getNick() != "$" && !user->isUserSet ) {
 						user->isUserSet = true;
 						handshake( user );
 					}
@@ -119,13 +121,16 @@ void stream( int client_index, Server & srv ) {
             if (iss >> target >> mode_changes) {
                 if (target[0] == '#') {  // Channel mode
                     std::list<Channel*>::iterator it = srv.find_channel(target);
-                    if (it != srv.channels.end()) {
+                    if (it != srv.getChannelsEnd()) {
                         Channel *channel = *it;
-                        if (channel->is_operator(user)) {
+                        if (channel->is_operator(user) || user->isServerOperator) {
 							if ( iss >> target_user_nick ) {
 								User * target_user = channel->find_user_by_nickname(target_user_nick);
 								if (target_user) {
+									std::cerr << "Found target " << target_user_nick << std::endl;
 									channel->update_modes(mode_changes, target_user);
+									if (channel->is_operator_empty())
+										srv.remove_channel(channel);
 								} else {
 									std::string msg = ERR_NOSUCHUSERINCHANNEL(user,target,target_user_nick);
                       			  	send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
@@ -161,7 +166,9 @@ void stream( int client_index, Server & srv ) {
             if (iss >> word) {
                 if (word[0] == '#') {
                     std::list<Channel*>::iterator it = srv.find_channel(word);
-                    if (it != srv.channels.end()) {
+                    if (it != srv.getChannelsEnd()) {
+						if ((*it)->isBanned(user))
+							return;
                         std::string msg = (*it)->who(user);
                         send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
                     } else {
@@ -187,7 +194,7 @@ void stream( int client_index, Server & srv ) {
             }
 		} else if (word == "WHOIS") {
             if (iss >> word) {
-                User* targetUser = srv.find_user_by_nickname(word);
+                User* targetUser = srv.get_user_by_nickname(word);
                 if (targetUser) {
                     std::string msg = RPL_WHOISUSER(user, targetUser) + RPL_WHOISSERVER(user, targetUser) + RPL_ENDOFWHOIS(user, targetUser);
                     send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
@@ -203,24 +210,80 @@ void stream( int client_index, Server & srv ) {
 			
 				iss >> word;
 				std::list<Channel*>::iterator it = srv.find_channel( word );
-				if (it == srv.channels.end() || srv.channels.empty())
+				if (it == srv.getChannelsEnd() )
 				{	
-					srv.channels.push_back(new Channel(word, user));
+					srv.add_to_Channels(new Channel(word, user));
 					std::cerr << "User " << user->getNick() << " created channel " << word << std::endl;
 				} else {
 					Channel * tmp = *it;
+					if (tmp->isBanned(user))
+						return;
 					tmp->join( user );
+					std::string current_topic = (*it)->get_topic();
+					if (!current_topic.empty()) {
+						std::string msg = RPL_TOPIC(user, word, current_topic);
+						send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+					}
 					std::cerr << "User " << user->getNick() << " was added to channel " << tmp->getName() << std::endl;
 				}
-		}
-		else if (word == "PRIVMSG") {
+		} else if (word == "PART") {
+
+			if (iss >> word) { // Extract the channel name
+				std::list<Channel*>::iterator it = srv.find_channel(word);
+				if (it != srv.getChannelsEnd()) {
+					// Remove the user from the channel
+					Channel *channel = *it;
+					if (channel->has_user(user)) {
+						channel->part(user);
+						if (channel->is_operator_empty())
+							srv.remove_channel(channel);
+					} else {
+						std::string msg = ERR_NOSUCHUSERINCHANNEL(user, word, user->getNick());
+						send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+					}
+				} else {
+					// Handle the case where the channel was not found
+					std::string msg = ERR_NOSUCHCHANNEL(user, word);
+					send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+				}
+			}
+		} else if (word == "TOPIC") {
+			if (iss >> word) { // Extract the channel name
+				std::list<Channel*>::iterator it = srv.find_channel(word);
+				if (it != srv.getChannelsEnd() ) {
+					std::string new_topic;
+					if ((*it)->isBanned(user))
+						return;
+					if (getline(iss, new_topic, ':')) { // If a new topic is specified
+						getline(iss, new_topic); // Read the rest of the new topic
+						// Remove any trailing newline characters from the new topic
+						new_topic.erase(std::remove(new_topic.begin(), new_topic.end(), '\n'), new_topic.end());
+						new_topic.erase(std::remove(new_topic.begin(), new_topic.end(), '\r'), new_topic.end());
+
+						// Set the new topic for the channel
+						(*it)->set_topic(new_topic);
+						(*it)->broadcast_new_topic();
+					} else {
+						// If no new topic is specified, return the current topic
+						std::string current_topic = (*it)->get_topic();
+						std::string msg = RPL_TOPIC(user, word, current_topic);
+						send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+					}
+				} else {
+					std::string msg = ERR_NOSUCHCHANNEL(user, word);
+					send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+				}
+			}
+        } else if (word == "PRIVMSG") {
 				iss >> word; // Extract the target (channel or user nickname)
 
 				// Check if the target is a channel (starts with a '#' character)
 				if (word[0] == '#') {
 					std::list<Channel*>::iterator it = srv.find_channel(word);
-					if (it != srv.channels.end()) {
+					if (it != srv.getChannelsEnd()) {
 						// Broadcast the message to the channel
+						if ((*it)->isBanned(user))
+							return;
 						getline(iss, word, ':'); // Skip the colon before the message content
 						std::string message;
 						getline(iss, message); // Read the rest of the message
@@ -255,5 +318,4 @@ void stream( int client_index, Server & srv ) {
 			send(user->getFd(),  ERR_NOTIMPLEMENTED(word).c_str(), ERR_NOTIMPLEMENTED(word).length(), MSG_NOSIGNAL);
 		}
 	}
-
 }

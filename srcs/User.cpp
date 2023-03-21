@@ -6,7 +6,7 @@
 /*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:22:40 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/19 12:20:03 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/20 23:45:37 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ User::User( int fd ) {
 	this->isAlive = true;
 	this->isServerOperator = false;
 	this->_host = "localhost";
+	this->_nick = "$";
+	this->_name = "$";
 	return;
 }
 
@@ -76,6 +78,7 @@ std::string User::getRealName( void ) const {
 }
 
 void User::setNick( std::string nick ) {
+	clearNick();
 	this->_nick = nick;
 }
 

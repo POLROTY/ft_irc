@@ -5,10 +5,10 @@
 
 
 // HAND SHAKE
-#define RPL_WELCOME(user) (":" + user->getName() + " 001 " + user->getNick() + " :Welcome to the Internet Relay Network " + user->getName() + "\n")
-#define RPL_YOURHOST(user) (":" + user->getName() + " 002 :Your host is " + user->getHost() + ", running version 42\n")
-#define RPL_CREATED(user) (":" + user->getName() + " 003 :This server was created at saint Gliglin\n")
-#define RPL_MYINFO(user) (":" + user->getName() + " 004 :" + user->getHost() + " 42 iwso ntio\n")
+#define RPL_WELCOME(user) (":" + user->getNick() + " 001 " + user->getNick() + " :Welcome to the IRC Network " + user->getNick() + user->getRealName() + "@" + user->getHost() + "\n")
+#define RPL_YOURHOST(user) (":" + user->getNick() + " 002 : Your host is " + user->getHost() + ", running version 4.2\n")
+#define RPL_CREATED(user) (":" + user->getNick() + " 003 :  This server was created  Tue Feb 14 2023 at 12:34:56 UTC\n")
+#define RPL_MYINFO(user) (":" + user->getNick() + " 004 :" + user->getHost() + " 42 iwso ntio\n")
 
 
 // PING
@@ -43,6 +43,11 @@
 #define ERR_NOSUCHUSERINCHANNEL(user, channel, target) (":" + (user)->getName() + " 441 " + (user)->getNick() + " " + (target) + " " + (channel) + " :No such user in channel\n")
 #define RPL_ADDEDCHANOPER(user, channel) (":" + (user)->getName() + " 482 " + (user)->getNick() + " " + (channel) + " :You have been added as a channel operator\n")
 #define RPL_REMOVEDCHANOPER(user, channel) (":" + (user)->getName() + " 482 " + (user)->getNick() + " " + (channel) + " :You have been removed as a channel operator\n")
+#define ERR_BANNEDFROMCHAN(user, channel) ( ":" + user->getName() + " 474 " + user->getNick() + " " + channel->getName() + " :You are banned from this channel\n" )
+#define RPL_UNBANUSER(user, channel) (":" + user->getName() + " MODE " + channel->getName() + " -b " + user->getNick() + " : You have been unbanned from this channel\r\n")
+
+//TOPIC
+#define RPL_TOPIC(user, channel, topic) (":" + (user)->getName() + " 332 " + (user)->getNick() + " " + (channel) + " :" + (topic) + "\n")
 
 //OPER
 #define RPL_YOUREOPER(user) (":" + (user)->getName() + " 381 " + (user)->getNick() + " :You are now an IRC operator\r\n")

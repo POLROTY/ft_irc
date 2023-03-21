@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <csignal>
 
+
 ////////// class ////////// 
 #include "Server.hpp"
 #include "User.hpp"
@@ -43,7 +44,7 @@ class Server;
 
 bool	is_string_digit( char *str );
 bool	arguments_check( int argc, char *str );
-void	sighandler(int signal);
+void 	signalHandler(int signum);
 
 /////////// FUNCTIONS IN SRCS/COMMANDS/NICK.CPP //////////
 

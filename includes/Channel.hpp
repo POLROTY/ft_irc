@@ -70,6 +70,7 @@ public:
 	void part(User *user);
     std::string who(User *requester);
 	void invite(User *user, User *targetUser);
+	void kick(User *source, User *target, const std::string &reason);
 
 private:
     std::string topic;

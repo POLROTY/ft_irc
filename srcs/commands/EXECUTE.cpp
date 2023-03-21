@@ -6,7 +6,7 @@
 /*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:52:22 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/21 16:44:55 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/21 18:19:40 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -305,6 +305,44 @@ void stream( int client_index, Server & srv ) {
 					send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 				}
 			}
+		} else if (word == "KICK") {
+			std::string channelName, targetNick, reason;
+			if (iss >> channelName >> targetNick) {
+				std::list<Channel*>::iterator it = srv.find_channel(channelName);
+				if (it != srv.getChannelsEnd()) {
+					Channel *channel = *it;
+					if (channel->is_operator(user) || user->isServerOperator) {
+						User *targetUser = srv.get_user_by_nickname(targetNick);
+						if (targetUser) {
+							if (channel->has_user(targetUser)) {
+								if (getline(iss, reason, ':')) {
+									getline(iss, reason);
+									reason.erase(std::remove(reason.begin(), reason.end(), '\n'), reason.end());
+									reason.erase(std::remove(reason.begin(), reason.end(), '\r'), reason.end());
+								}
+								channel->kick(user, targetUser, reason);
+								if (channel->is_operator_empty())
+									srv.remove_channel(channel);
+							} else {
+								std::string msg = ERR_NOSUCHUSERINCHANNEL(user, channelName, targetNick);
+								send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+							}
+						} else {
+							std::string msg = ERR_NOSUCHNICK(user, targetNick);
+							send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+						}
+					} else {
+						std::string msg = ERR_CHANOPRIVSNEEDED(user, channelName);
+						send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+					}
+				} else {
+					std::string msg = ERR_NOSUCHCHANNEL(user, channelName);
+					send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+				}
+			} else {
+				std::string msg = ERR_NEEDMOREPARAMS(user, "KICK");
+				send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+			}
 		} else if (word == "TOPIC") {
 			if (iss >> word) { // Extract the channel name
 				std::list<Channel*>::iterator it = srv.find_channel(word);
@@ -340,6 +378,11 @@ void stream( int client_index, Server & srv ) {
 					std::list<Channel*>::iterator it = srv.find_channel(word);
 					if (it != srv.getChannelsEnd()) {
 						// Broadcast the message to the channel
+						if(!(*it)->has_user(user)) {
+							std::string msg = ERR_NOSUCHUSERINCHANNEL(user, word, user->getNick());
+							send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+							return;
+						}
 						if ((*it)->isBanned(user))
 							return;
 						getline(iss, word, ':'); // Skip the colon before the message content
@@ -352,8 +395,8 @@ void stream( int client_index, Server & srv ) {
 
 						(*it)->broadcast(word + message, user);
 					} else {
-						// Handle the case where the channel was not found
-						// (e.g., send an error message back to the user)
+						std::string msg = ERR_NOSUCHCHANNEL(user, word);
+						send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 					}
 				} else {
 					// The target is a user nickname

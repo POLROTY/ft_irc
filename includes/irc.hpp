@@ -6,7 +6,7 @@
 /*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:19:21 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/21 19:00:41 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/22 15:10:34 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,5 +70,6 @@ void	invite_cmd(std::istringstream *iss, std::string word, User *user, Server &s
 void	kick_cmd(std::istringstream *iss, User *user, Server &srv);
 void	kill_cmd(std::istringstream *iss, User *user, Server &srv);
 void	mode_cmd(std::istringstream *iss, User *user, Server &srv);
+void	quit_cmd(User *user, Server &srv);
 
 #endif

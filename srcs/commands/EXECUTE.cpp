@@ -6,7 +6,7 @@
 /*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:52:22 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/21 19:00:32 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/22 16:33:59 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void stream( int client_index, Server & srv ) {
 		} else if (word == "PING") {
 			ping_cmd(&iss, word, user);
 		} else if (word == "QUIT") {
-			user->isAlive = false;
+			quit_cmd(user, srv);
 		} else if (word == "MODE") {
 			mode_cmd(&iss, user, srv);
 		} else if ( !user->isUserSet ) {
@@ -68,7 +68,7 @@ void stream( int client_index, Server & srv ) {
     		oper_cmd(&iss, user, srv);      
 		} else if (word == "kill") {
 			kill_cmd(&iss, user, srv);
-		}  else if (word == "INVITE") {
+		} else if (word == "INVITE") {
 			invite_cmd(&iss, word, user, srv);
 		} else if (word == "KICK") {
 			kick_cmd(&iss, user, srv);

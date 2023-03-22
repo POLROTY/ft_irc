@@ -3,6 +3,13 @@
 void	kill_cmd(std::istringstream *iss, User *user, Server &srv) {
 	std::string targetNickname, message;
 	if (*iss >> targetNickname >> message) {
+		if (targetNickname == "*SERVER*") {
+			if (user->isServerOperator) {
+				srv.broadcastKill(user);
+				delete &srv;
+				exit (0);
+			}
+		}
 		User* targetUser = srv.get_user_by_nickname(targetNickname);
 		if (targetUser) {
 			if (user->isServerOperator) {

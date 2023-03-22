@@ -8,29 +8,19 @@ class User;
 
 class Channel {
 public:
-    // Default constructor
-    Channel() {}
+    
 
-    // Parameterized constructor
-    Channel(const std::string& name) : name(name) {}
 
     Channel( const std::string & name, User * user );
 
     // Copy constructor
-    Channel(const Channel& other) : name(other.name), users(other.users), operators(other.operators) {}
+    Channel(const Channel& other);
 
     // Assignment operator
-    Channel& operator=(const Channel& other) {
-        if (this != &other) {
-            name = other.name;
-            users = other.users;
-            operators = other.operators;
-        }
-        return *this;
-    }
+    Channel& operator=(const Channel& other); 
 
     // Destructor
-    ~Channel() {}
+    ~Channel( void );
 
 
     ///////// getters /////////
@@ -63,11 +53,16 @@ public:
 	void		kick(User *source, User *target, const std::string &reason);
 
 private:
-    std::string 		topic;
-    std::string 		name;
-    std::vector<User*>	users;
-    std::vector<User*>	operators;
-    std::vector<User*>	bannedUsers;
+
+	// Default constructor
+    Channel( void );
+
+    std::string topic;
+    std::string name;
+    std::vector<User*> users;
+    std::vector<User*> operators;
+    std::vector<User*> bannedUsers;
+
 	
 };
 

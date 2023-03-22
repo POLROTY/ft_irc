@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   irc.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:19:21 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/21 19:00:41 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/22 15:44:48 by hspriet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ void 	signalHandler(int signum);
 
 /////////// CMD FUNCTIONS //////////
 
+void notice_cmd(std::istringstream *iss, std::string word, User *user, Server &srv);
 void	handshake(User *user);
 bool	isValidNickname( const std::string & nickname );
 bool	nickInUse( std::string nickToCheck, Server & srv );

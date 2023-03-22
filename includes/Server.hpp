@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
+/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:08:36 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/21 15:22:00 by nfascia          ###   ########.fr       */
+/*   Updated: 2023/03/22 16:14:14 by hspriet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ class Server {
 		void	send_private_message(const std::string &sender_nickname, const std::string &recipient_nickname, const std::string &message);
 		int		server_loop( void );
 		int		bind_and_listen( int listening, int port);
-		
+		void	send_notice(const std::string& sender_nickname, const std::string& receiver_nickname, const std::string& message, bool broadcast = false);
 	private:
 		Server( void );
 		

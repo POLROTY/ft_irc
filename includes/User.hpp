@@ -6,7 +6,7 @@
 /*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:18:45 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/22 16:22:20 by nfascia          ###   ########.fr       */
+/*   Updated: 2023/03/22 16:58:26 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@ class User {
 		void		appendBuff( std::string buff );
 		void		setName( std::string Name );
 		void		setHost( std::string Host );
-		void		setMode( std::string channel, std::string mode );
 		void		clearNick( void );
 
 		bool		isUserSet;
@@ -56,7 +55,7 @@ class User {
 		std::string _name;
 		std::string _host;
 		std::string _buff;
-		
+
 		int 		_fd;
 };
 

@@ -71,5 +71,6 @@ void	invite_cmd(std::istringstream *iss, std::string word, User *user, Server &s
 void	kick_cmd(std::istringstream *iss, User *user, Server &srv);
 void	kill_cmd(std::istringstream *iss, User *user, Server &srv);
 void	mode_cmd(std::istringstream *iss, User *user, Server &srv);
+void	quit_cmd(User *user, Server &srv);
 
 #endif

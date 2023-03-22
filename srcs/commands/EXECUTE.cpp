@@ -24,6 +24,7 @@ void handshake(User *user) {
 }
 
 void stream( int client_index, Server & srv ) {
+{
 	User * user = srv.get_user_by_index(client_index);
 
 	std::string::size_type pos = user->getBuff().find_first_of('\n');
@@ -56,7 +57,7 @@ void stream( int client_index, Server & srv ) {
 		} else if (word == "PING") {
 			ping_cmd(&iss, word, user);
 		} else if (word == "QUIT") {
-			user->isAlive = false;
+			quit_cmd(user, srv);
 		} else if (word == "MODE") {
 			mode_cmd(&iss, user, srv);
 		} else if ( !user->isUserSet ) {
@@ -68,7 +69,7 @@ void stream( int client_index, Server & srv ) {
     		oper_cmd(&iss, user, srv);      
 		} else if (word == "kill") {
 			kill_cmd(&iss, user, srv);
-		}  else if (word == "INVITE") {
+		} else if (word == "INVITE") {
 			invite_cmd(&iss, word, user, srv);
 		} else if (word == "KICK") {
 			kick_cmd(&iss, user, srv);
@@ -88,4 +89,7 @@ void stream( int client_index, Server & srv ) {
 			send(user->getFd(),  ERR_NOTIMPLEMENTED(word).c_str(), ERR_NOTIMPLEMENTED(word).length(), MSG_NOSIGNAL);
 		}
 	}
+}
+	if (!Server::instance)
+		exit(0);
 }

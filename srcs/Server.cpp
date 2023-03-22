@@ -304,8 +304,15 @@ void Server::remove_channel(Channel* channel) {
     }
 }
 
+void Server::broadcastKill(User *sender) {
+	for (std::list<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
+        User *receiver = *it;
+		
+        // Format the message according to the IRC protocol
+        std::string msg = ERR_SRVDEAD(sender, receiver);
 
-
-////////// functions //////////
-
-
+        if (receiver->isAlive) {
+            send(receiver->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+        }
+    }
+}

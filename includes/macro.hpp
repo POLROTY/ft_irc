@@ -55,6 +55,7 @@
 #define RPL_YOUREOPER(user) (":" + (user)->getName() + " 381 " + (user)->getNick() + " :You are now an IRC operator\r\n")
 #define ERR_NOPRIVILEGES(user) ( ":" + user->getHost() + " 481 " + user->getNick() + " :Permission Denied- You're not an IRC operator\r\n" )
 #define ERR_YOUDEAD(victim, killer) ( ":" + victim->getHost() + " 483 " + victim->getNick() + " :You have been killed from server by the IRC operator : " + killer->getNick() + "\r\n" )
+#define ERR_SRVDEAD(victim, killer) ( ":" + victim->getHost() + " 483 " + victim->getNick() + " :Server has been killed by the IRC server operator : " + killer->getNick() + "\r\n" )
 
 #define ERR_NEEDMOREPARAMS(user, command) (":" + (user)->getName() + " 461 " + (user)->getNick() + " " + (command) + " :Not enough parameters\r\n")
 

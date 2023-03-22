@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:22:40 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/22 01:59:02 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/22 16:51:29 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,10 +93,6 @@ void User::setName( std::string Name ) {
 
 void User::setHost( std::string Host ) {
 	this->_host = Host;
-}
-
-void User::setMode( std::string channel, std::string mode ) {
-	this->channelModes.push_back(channel + mode);
 }
 
 std::string User::getHost( void ) const {

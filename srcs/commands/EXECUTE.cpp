@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EXECUTE.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:52:22 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/22 16:33:59 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/22 17:48:05 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ void handshake(User *user) {
 }
 
 void stream( int client_index, Server & srv ) {
+{
 	User * user = srv.get_user_by_index(client_index);
 
 	std::string::size_type pos = user->getBuff().find_first_of('\n');
@@ -86,4 +87,7 @@ void stream( int client_index, Server & srv ) {
 			send(user->getFd(),  ERR_NOTIMPLEMENTED(word).c_str(), ERR_NOTIMPLEMENTED(word).length(), MSG_NOSIGNAL);
 		}
 	}
+}
+	if (!Server::instance)
+		exit(0);
 }

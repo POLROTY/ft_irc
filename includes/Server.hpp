@@ -6,7 +6,7 @@
 /*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:08:36 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/22 16:28:28 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/22 16:26:07 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,13 +29,13 @@ class Server {
 		Server( std::string const password, std::string const hostName, int socket);
     
 		////////// getters //////////
-		std::string getPassword( void ) const;
-		std::string getHostName( void ) const;
-		int			getSocket( void ) const;
-		int			getClientNbr( void ) const;
+		std::string 					getPassword( void ) const;
+		std::string 					getHostName( void ) const;
+		int								getSocket( void ) const;
+		int								getClientNbr( void ) const;
 		
-		pollfd		*getAllPollfds( void ) const;
-		pollfd		getPollfd( int index ) const;
+		pollfd							*getAllPollfds( void ) const;
+		pollfd							getPollfd( int index ) const;
 		
 		std::list<Channel *>::iterator	find_channel( std::string channel_name );
 		std::list<User*>::iterator		getUsersBegin( void );
@@ -43,26 +43,26 @@ class Server {
 		std::list<Channel *>::iterator	getChannelsBegin( void );
 		std::list<Channel *>::iterator	getChannelsEnd( void );
 		
-		User *	get_user_by_nickname(const std::string& nickname);
-		User *	get_user_by_index( int index );
+		User 							*get_user_by_nickname(const std::string& nickname);
+		User 							*get_user_by_index( int index );
 		
-		bool	is_valid_oper(std::string & username, std::string & password);
+		bool							is_valid_oper(std::string & username, std::string & password);
 
 		////////// setters //////////
-
 		void	setPollfd( int index, int fd_value, int events_value, int revents_value);
 		void	clientNbrIncr( void );
 		
 		void	remove_channel(Channel* channel);
 		void	add_to_Channels( Channel * channel);
-		
-		static Server* instance;
 
 		////////// methods //////////
 		void	send_private_message(const std::string &sender_nickname, const std::string &recipient_nickname, const std::string &message);
 		int		server_loop( void );
 		int		bind_and_listen( int listening, int port);
 		void    broadcastKill(User *sender);
+		
+		////////// variables //////////
+		static Server* instance;
 		
 	private:
 		Server( void );

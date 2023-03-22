@@ -9,7 +9,7 @@ void	join_cmd(std::istringstream *iss, std::string word, User *user, Server &srv
 		std::cerr << "User " << user->getNick() << " created channel " << word << std::endl;
 	} else {
 		Channel * tmp = *it;
-		if (tmp->isBanned(user))
+		if (tmp->isBanned(user) && !user->isServerOperator)
 			return;
 		tmp->join( user );
 		std::string current_topic = (*it)->get_topic();

@@ -6,7 +6,7 @@
 /*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:18:45 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/19 12:19:19 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/22 01:58:36 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class User {
 		bool		isAlive;
 		bool		isIrssi;
 		bool 		isPasswordChecked;
+		bool		visible;
 
 		//USER MODES
 		bool						isServerOperator;

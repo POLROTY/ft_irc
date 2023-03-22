@@ -6,7 +6,7 @@
 /*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:22:40 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/20 23:45:37 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/22 01:59:02 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ User::User( int fd ) {
 	this->isPasswordChecked = false;
 	this->isAlive = true;
 	this->isServerOperator = false;
+	this->visible = true;
 	this->_host = "localhost";
 	this->_nick = "$";
 	this->_name = "$";
@@ -122,21 +123,22 @@ void User::update_modes(const std::string& mode_changes) {
                 case '-':
                     add_mode = false;
                     break;
-                case 'o':  // channel IRC operator mode
+                case 'o':  // server IRC operator mode
                     if (add_mode) {
-                        //send message to say you cant
+                        std::string msg = ERR_PASSWDMISMATCH(this);
+            			send(this->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
                     } else {
                         this->isServerOperator = false;
                     }
                     break;
-                // case 'b':  // channel IRC ban mode
-                //     if (add_mode) {
-                //         add_to_ban(user);
-                //     } else {
-                //         remove_from_ban(user);
-                //     }
-                //     break;
-                // ... handle other user modes ...
+                case 'i':  // user visible
+                    if (add_mode) {
+                        this->visible = false;
+                    } else {
+                        this->visible = true;
+                    }
+                    break;
+					
                 default:
                     // Ignore unsupported or unknown modes
                     break;

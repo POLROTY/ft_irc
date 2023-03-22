@@ -6,7 +6,7 @@ void	topic_cmd(std::istringstream *iss, std::string word, User *user, Server &sr
 		std::list<Channel*>::iterator it = srv.find_channel(word);
 		if (it != srv.getChannelsEnd()) {
 			std::string new_topic;
-			if ((*it)->isBanned(user))
+			if ((*it)->isBanned(user) && !user->isServerOperator)
 				return;
 			if (getline(*iss, new_topic, ':')) { // If a new topic is specified
 				getline(*iss, new_topic); // Read the rest of the new topic

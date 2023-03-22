@@ -56,9 +56,11 @@ std::string Channel::who(User *requester) {
         std::stringstream ss;
         std::vector<User*>::iterator it;
         for (it = users.begin(); it != users.end(); ++it) {
-            ss << ":" << requester->getName() << " 352 " << requester->getNick() << " "
-               << getName() << " " << (*it)->getName() << " " << (*it)->getHost()
-               << " " << (*it)->getName() << " H" << " :0 " << (*it)->getRealName() << "\r\n";
+            if ((*it)->visible || (*it) == requester || is_operator(requester) || requester->isServerOperator) {
+                ss << ":" << requester->getName() << " 352 " << requester->getNick() << " "
+                << getName() << " " << (*it)->getName() << " " << (*it)->getHost()
+                << " " << (*it)->getName() << " H" << " :0 " << (*it)->getRealName() << "\r\n";
+            }
         }
         ss << ":" << requester->getName() << " 315 " << requester->getNick() << " "
            << getName() << " :End of /WHO list.\r\n";
@@ -118,6 +120,7 @@ void Channel::join(User* user) {
 
 void Channel::update_modes(const std::string& mode_changes, User * user) {
         bool add_mode = true;
+        std::cerr << std::endl << mode_changes << std::endl << std::endl;
         for (std::string::const_iterator it = mode_changes.begin(); it != mode_changes.end(); ++it) {
             char mode = *it;
             switch (mode) {
@@ -130,15 +133,19 @@ void Channel::update_modes(const std::string& mode_changes, User * user) {
                 case 'o':  // channel IRC operator mode
                     if (add_mode) {
                         add_to_operators(user);
+                        std::cerr << std::endl << user->getNick() << "was added to operators" << std::endl << std::endl;
                     } else {
                         remove_from_operators(user);
+                        std::cerr << std::endl << user->getNick() << "was removed from operators" << std::endl << std::endl;
                     }
                     break;
                 case 'b':  // channel IRC ban mode
                     if (add_mode) {
                         add_to_ban(user);
+                        std::cerr << std::endl << user->getNick() << "was banned" << std::endl << std::endl;
                     } else {
                         remove_from_ban(user);
+                        std::cerr << std::endl << user->getNick() << "was unbanned" << std::endl << std::endl;
                     }
                     break;
                 // ... handle other user modes ...
@@ -170,7 +177,6 @@ void Channel::add_to_ban(User * user) {
     std::string msg = ERR_BANNEDFROMCHAN(user, this);
     send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 
-    users.erase(std::remove(users.begin(), users.end(), user), users.end());
     // If the user is an operator, remove them from the operators list as well
     operators.erase(std::remove(operators.begin(), operators.end(), user), operators.end());
     std::string info = ":" + user->getNick() + " BAN " + name + "\r\n";

@@ -8,13 +8,13 @@ void	privmsg_cmd(std::istringstream *iss, std::string word, User *user, Server &
 		std::list<Channel*>::iterator it = srv.find_channel(word);
 		if (it != srv.getChannelsEnd()) {
 		// Broadcast the message to the channel
-			if ((*it)->has_user(user)) {
+			if ((*it)->isBanned(user) && !user->isServerOperator)
+				return;
+			if (!(*it)->has_user(user)) {
 				std::string msg = ERR_NOSUCHUSERINCHANNEL(user, word, user->getNick());
 				send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 				return;
 			}
-			if ((*it)->isBanned(user))
-				return;
 			getline(*iss, word, ':'); // Skip the colon before the message content
 			std::string message;
 			getline(*iss, message); // Read the rest of the message

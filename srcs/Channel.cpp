@@ -12,6 +12,8 @@ Channel::Channel(void) {
 Channel::Channel( const std::string & name, User * user) : name(name) {
 	users.push_back( user );
 	operators.push_back( user ); // Add the first user as an operator
+	std::string info = ":" + user->getName() + " JOIN " + name + "\r\n";
+    broadcast_info(info);
 }
 
 Channel::Channel(const Channel &other) {
@@ -43,7 +45,7 @@ void Channel::broadcast(const std::string& message, User* sender) {
 
 
 		// Format the message according to the IRC protocol
-		std::string formatted_message = ":" + sender->getNick() + "!" + sender->getRealName() + "@" + sender->getHost() + " PRIVMSG " + name + " :" + message + "\r\n";
+		std::string formatted_message = ":" + sender->getName() + " PRIVMSG " + name + " :" + message + "\r\n";
 		
 		if (user != sender && user->isAlive) {
 			send(user->getFd(), formatted_message.c_str(), formatted_message.size(), MSG_NOSIGNAL);
@@ -139,7 +141,8 @@ void Channel::set_topic( std::string new_topic ) {
 // Add a user to the channel
 void Channel::join(User* user) {
     users.push_back(user);
-    std::string info = ":" + user->getNick() + " JOIN " + name + "\r\n";
+    std::string info = ":" + user->getName() + " JOIN " + name + "\r\n";
+	std::cerr << std::endl << info << std::endl << std::endl;
     broadcast_info(info);
 }
 
@@ -204,7 +207,7 @@ void Channel::add_to_ban(User * user) {
 
     // If the user is an operator, remove them from the operators list as well
     operators.erase(std::remove(operators.begin(), operators.end(), user), operators.end());
-    std::string info = ":" + user->getNick() + " BAN " + name + "\r\n";
+    std::string info = ":" + user->getName() + " BAN " + name + "\r\n";
     broadcast_info(info);
     // Assign operator privileges to another user if the channel is not empty
     if (!users.empty() && operators.empty()) {
@@ -256,8 +259,10 @@ void Channel::part(User* user) {
     operators.erase(std::remove(operators.begin(), operators.end(), user), operators.end());
     std::string info = ":" + user->getName() + " PART " + name + " " + user->getNick() +"\r\n";
     broadcast_info(info);
-	if (user->isAlive)
-		send(user->getFd(), info.c_str(), info.length(), MSG_NOSIGNAL);
+	if (user->isAlive) {
+		std::string msg = ":" + user->getName() + " PART " + name + "\r\n";
+		send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+	}
     // Assign operator privileges to another user if the channel is not empty
     if (!users.empty() && operators.empty()) {
         for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {

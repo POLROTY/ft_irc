@@ -6,9 +6,9 @@
 
 // HAND SHAKE
 #define RPL_WELCOME(user) (":" + user->getNick() + " 001 " + user->getNick() + " :Welcome to the IRC Network " + user->getName() + "\n")
-#define RPL_YOURHOST(user) (":" + user->getNick() + " 002 : Your host is " + user->getHost() + ", running version 4.2\n")
-#define RPL_CREATED(user) (":" + user->getNick() + " 003 :  This server was created  Tue Feb 14 2023 at 12:34:56 UTC\n")
-#define RPL_MYINFO(user) (":" + user->getNick() + " 004 :" + user->getHost() + " 42 io iob\n")
+#define RPL_YOURHOST(user) (":" + user->getNick() + " 002 :Your host is " + user->getHost() + ", running version 4.2\n")
+#define RPL_CREATED(user) (":" + user->getNick() + " 003 :This server was created  Tue Feb 14 2023 at 12:34:56 UTC\n")
+#define RPL_MYINFO(user) (":" + user->getNick() + " 004 : " + user->getHost() + " 42 io iob\n")
 
 
 // PING
@@ -19,7 +19,7 @@
 
 
 // NICK
-#define NICK(user, newNick) (":" + user->getNick() + " NICK  " + newNick + "\r\n")
+#define NICK(user, newNick) (":" + user->getNick() + " NICK " + newNick + "\r\n")
 #define ERR_NICKNAMEINUSE(user) (":NICKSERVER 433 * " + user->getNick() + " :Nickname is already in use.\r\n")
 #define ERR_ERRONEUSNICKNAME(user) ("432 " + user->getNick() + " :Erroneous nickname\r\n")
 #define RPL_WHOISUSER(requester, target) (":" + (requester)->getName() + " 311 " + (requester)->getNick() + " " + (target)->getNick() + " " + (target)->getName() + " " + (target)->getHost() + " * :" + (target)->getRealName() + "\r\n")

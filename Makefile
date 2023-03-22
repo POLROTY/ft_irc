@@ -22,6 +22,7 @@ SRC			= main.cpp \
 			  commands/KICK.cpp \
 			  commands/KILL.cpp \
 			  commands/MODE.cpp \
+			  commands/QUIT.cpp \
 			  commands/PRIVMSG.cpp
 
 SRCSPATH 	= srcs

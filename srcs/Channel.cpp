@@ -5,27 +5,50 @@
 
 
 ////////// methods //////////
+Channel::Channel(void) {
+	return;
+}
 
 Channel::Channel( const std::string & name, User * user) : name(name) {
-    users.push_back( user );
-    operators.push_back( user ); // Add the first user as an operator
+	users.push_back( user );
+	operators.push_back( user ); // Add the first user as an operator
+}
+
+Channel::Channel(const Channel &other) {
+	*this = other;
+	return;
+}
+
+Channel &Channel::operator=(const Channel &other) {
+	if (this != &other) {
+		name = other.name;
+		users = other.users;
+		operators = other.operators;
+		bannedUsers = other.bannedUsers;
+		topic = other.topic;
+	}
+	return *this;
+}
+
+Channel::~Channel(void) {
+	return;
 }
 
 //broacasting methods
 
 // Send a message to all users in the channel
 void Channel::broadcast(const std::string& message, User* sender) {
-    for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
-        User* user = *it;
+	for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
+		User* user = *it;
 
 
-        // Format the message according to the IRC protocol
-        std::string formatted_message = ":" + sender->getNick() + "!" + sender->getRealName() + "@" + sender->getHost() + " PRIVMSG " + name + " :" + message + "\r\n";
-        
-        if (user != sender && user->isAlive) {
-            send(user->getFd(), formatted_message.c_str(), formatted_message.size(), MSG_NOSIGNAL);
-        }
-    }
+		// Format the message according to the IRC protocol
+		std::string formatted_message = ":" + sender->getNick() + "!" + sender->getRealName() + "@" + sender->getHost() + " PRIVMSG " + name + " :" + message + "\r\n";
+		
+		if (user != sender && user->isAlive) {
+			send(user->getFd(), formatted_message.c_str(), formatted_message.size(), MSG_NOSIGNAL);
+		}
+	}
 }
 
 void Channel::broadcast_info(const std::string& info) {
@@ -53,18 +76,18 @@ void Channel::broadcast_new_topic( void ) {
 }
 
 std::string Channel::who(User *requester) {
-        std::stringstream ss;
-        std::vector<User*>::iterator it;
-        for (it = users.begin(); it != users.end(); ++it) {
-            if ((*it)->visible || (*it) == requester || is_operator(requester) || requester->isServerOperator) {
-                ss << ":" << requester->getName() << " 352 " << requester->getNick() << " "
-                << getName() << " " << (*it)->getName() << " " << (*it)->getHost()
-                << " " << (*it)->getName() << " H" << " :0 " << (*it)->getRealName() << "\r\n";
-            }
-        }
-        ss << ":" << requester->getName() << " 315 " << requester->getNick() << " "
-           << getName() << " :End of /WHO list.\r\n";
-        return ss.str();
+		std::stringstream ss;
+		std::vector<User*>::iterator it;
+		for (it = users.begin(); it != users.end(); ++it) {
+			if ((*it)->visible || (*it) == requester || is_operator(requester) || requester->isServerOperator) {
+				ss << ":" << requester->getName() << " 352 " << requester->getNick() << " "
+				<< getName() << " " << (*it)->getName() << " " << (*it)->getHost()
+				<< " " << (*it)->getName() << " H" << " :0 " << (*it)->getRealName() << "\r\n";
+			}
+		}
+		ss << ":" << requester->getName() << " 315 " << requester->getNick() << " "
+		<< getName() << " :End of /WHO list.\r\n";
+		return ss.str();
 }
 
 ////////// getters //////////
@@ -81,7 +104,9 @@ std::string Channel::getName( void ) {
 
 // Check if a user is in the channel
 bool Channel::has_user(User* user) const {
-    return std::find(users.begin(), users.end(), user) != users.end();
+	if (user)
+    	return std::find(users.begin(), users.end(), user) != users.end();
+	return false;
 }
 
 // Check if a user is an operator in the channel
@@ -231,7 +256,8 @@ void Channel::part(User* user) {
     operators.erase(std::remove(operators.begin(), operators.end(), user), operators.end());
     std::string info = ":" + user->getName() + " PART " + name + " " + user->getNick() +"\r\n";
     broadcast_info(info);
-	send(user->getFd(), info.c_str(), info.length(), MSG_NOSIGNAL);
+	if (user->isAlive)
+		send(user->getFd(), info.c_str(), info.length(), MSG_NOSIGNAL);
     // Assign operator privileges to another user if the channel is not empty
     if (!users.empty() && operators.empty()) {
         for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {

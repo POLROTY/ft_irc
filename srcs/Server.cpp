@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/20 18:57:05 by nfascia          ###   ########.fr       */
+/*   Updated: 2023/03/22 16:29:56 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -264,6 +264,19 @@ void Server::remove_channel(Channel* channel) {
     if (it != channels.end()) {
         channels.erase(it);
         delete channel;
+    }
+}
+
+void Server::broadcastKill(User *sender) {
+	for (std::list<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
+        User *receiver = *it;
+		
+        // Format the message according to the IRC protocol
+        std::string msg = ERR_SRVDEAD(sender, receiver);
+
+        if (receiver->isAlive) {
+            send(receiver->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+        }
     }
 }
 

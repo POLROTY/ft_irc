@@ -6,7 +6,7 @@
 /*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/20 18:57:05 by nfascia          ###   ########.fr       */
+/*   Updated: 2023/03/22 16:26:44 by nfascia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -266,9 +266,3 @@ void Server::remove_channel(Channel* channel) {
         delete channel;
     }
 }
-
-
-
-////////// functions //////////
-
-

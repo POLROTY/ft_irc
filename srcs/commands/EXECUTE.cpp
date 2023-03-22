@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EXECUTE.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
+/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:52:22 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/22 17:48:05 by nfascia          ###   ########.fr       */
+/*   Updated: 2023/03/22 15:45:29 by hspriet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,8 @@ void stream( int client_index, Server & srv ) {
 			topic_cmd(&iss, word, user, srv);
 		} else if (word == "PRIVMSG") {
 			privmsg_cmd(&iss, word, user, srv);
+		} else if (word == "NOTICE") {
+			notice_cmd(&iss, word, user, srv);
 		} else {
 			send(user->getFd(),  ERR_NOTIMPLEMENTED(word).c_str(), ERR_NOTIMPLEMENTED(word).length(), MSG_NOSIGNAL);
 		}

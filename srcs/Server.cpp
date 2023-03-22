@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/22 16:26:44 by nfascia          ###   ########.fr       */
+/*   Updated: 2023/03/22 17:34:52 by hspriet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,6 +204,43 @@ User* Server::get_user_by_nickname(const std::string& nickname) {
     }
     return NULL;
 }
+
+void Server::send_notice(const std::string& sender_nickname, const std::string& receiver_nickname, const std::string& message, bool broadcast)
+{
+    if (broadcast)
+    {
+        std::string notice_msg = ":" + sender_nickname + " NOTICE " + receiver_nickname + " :" + message + "\r\n";
+        for (std::list<User*>::iterator it = users.begin(); it != users.end(); ++it)
+        {
+            User* user = *it;
+            if (user->getNick() != sender_nickname)
+            {
+                send(user->getFd(), notice_msg.c_str(), notice_msg.length(), MSG_NOSIGNAL);
+            }
+        }
+    }
+    else
+    {
+        User* receiver = get_user_by_nickname(receiver_nickname);
+
+        if (receiver)
+        {
+            std::string notice_msg = ":" + sender_nickname + " NOTICE " + receiver_nickname + " :" + message + "\r\n";
+            send(receiver->getFd(), notice_msg.c_str(), notice_msg.length(), MSG_NOSIGNAL);
+        }
+        else
+        {
+            User* sender = get_user_by_nickname(sender_nickname);
+            std::string err_msg = ERR_NOSUCHNICK(sender, receiver_nickname);
+            if (sender)
+            {
+                send(sender->getFd(), err_msg.c_str(), err_msg.length(), MSG_NOSIGNAL);
+            }
+        }
+    }
+}
+
+
 
 std::list<User *>::iterator	 Server::getUsersBegin( void ) {
 	return users.begin();

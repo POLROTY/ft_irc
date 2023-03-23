@@ -19,7 +19,7 @@
 
 
 // NICK
-#define NICK(user, newNick) (":" + user->getHost() + " NICK " + newNick + "\r\n")
+#define NICK(user, newNick) (":" + user->getName() + " NICK " + newNick + "\r\n")
 #define ERR_NICKNAMEINUSE(user, nick) (":" + user->getHost() + " 433 " + user->getNick() + " " + nick + " :Nickname is already in use.\r\n")
 #define ERR_ERRONEUSNICKNAME(user) (":" + user->getHost() + " 432 " + user->getNick() + " :Erroneous nickname\r\n")
 #define RPL_WHOISUSER(requester, target) (":" + (requester)->getName() + " 311 " + (requester)->getNick() + " " + (target)->getNick() + " " + (target)->getName() + " " + (target)->getHost() + " * :" + (target)->getRealName() + "\r\n")

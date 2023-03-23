@@ -6,7 +6,7 @@
 /*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/23 17:45:48 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/23 18:30:02 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,9 +151,15 @@ std::string Server::getStartDate(void) const
 void Server::send_private_message(User *user, const std::string& recipient_nickname, const std::string& message) {
     User* recipient = get_user_by_nickname(recipient_nickname);
 
+	
     if (recipient) {
+      if (recipient->isAlive) {
         std::string formatted_message = ":" + user->getName() + " PRIVMSG " + recipient->getNick() + " :" + message + "\r\n";
-		send(recipient->getFd(), formatted_message.c_str(), formatted_message.size(), MSG_NOSIGNAL);
+        send(recipient->getFd(), formatted_message.c_str(), formatted_message.size(), MSG_NOSIGNAL);
+      } else {
+        std::string msg = ERR_NOSUCHNICK(user, recipient_nickname);
+        send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+      }
     } else {
 		std::string msg = ERR_NOSUCHNICK(user, recipient_nickname);
 		send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
@@ -224,8 +230,7 @@ void Server::send_notice(const std::string& sender_nickname, const std::string& 
         for (std::list<User*>::iterator it = users.begin(); it != users.end(); ++it)
         {
             User* user = *it;
-            if (user->getNick() != sender_nickname)
-            {
+            if (user->getNick() != sender_nickname && user->isAlive) {
                 send(user->getFd(), notice_msg.c_str(), notice_msg.length(), MSG_NOSIGNAL);
             }
         }

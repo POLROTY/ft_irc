@@ -1,7 +1,6 @@
 #include "irc.hpp"
 
-void	join_cmd(std::istringstream *iss, std::string word, User *user, Server &srv)
-{
+void	join_cmd(std::istringstream *iss, std::string word, User *user, Server &srv) {
 	*iss >> word;
 	std::list<Channel*>::iterator it = srv.find_channel( word );
 	if (it == srv.getChannelsEnd() ){	
@@ -11,6 +10,11 @@ void	join_cmd(std::istringstream *iss, std::string word, User *user, Server &srv
 		Channel * tmp = *it;
 		if (tmp->isBanned(user) && !user->isServerOperator)
 			return;
+		if (tmp->isInviteOnly && !tmp->isInvited(user)) {
+			std::string msg = ERR_NEEDINVITE(user, tmp);
+			send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+			return;
+		}
 		tmp->join( user );
 		std::string current_topic = (*it)->get_topic();
 		if (!current_topic.empty()) {

@@ -153,7 +153,7 @@ void Server::send_private_message(User *user, const std::string& recipient_nickn
 
     if (recipient) {
         std::string formatted_message = ":" + user->getName() + " PRIVMSG " + recipient->getNick() + " :" + message + "\r\n";
-		send(recipient->getFd(), formatted_message.c_str(), formatted_message.size(), 0);
+		send(recipient->getFd(), formatted_message.c_str(), formatted_message.size(), MSG_NOSIGNAL);
     } else {
 		std::string msg = ERR_NOSUCHNICK(user, recipient_nickname);
 		send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:08:36 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/23 01:34:28 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/23 17:46:25 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ class Server {
 		void	add_to_Channels( Channel * channel);
 
 		////////// methods //////////
-		void	send_private_message(const std::string &sender_nickname, const std::string &recipient_nickname, const std::string &message);
+		void	send_private_message(User *user, const std::string &recipient_nickname, const std::string &message);
 		int		server_loop( void );
 		int		bind_and_listen( int listening, int port);
 		void	send_notice(const std::string& sender_nickname, const std::string& receiver_nickname, const std::string& message, bool broadcast = false);

@@ -5,7 +5,7 @@ void	whois_cmd(std::istringstream *iss, std::string word, User *user, Server &sr
 	if (*iss >> word) {
         User* targetUser = srv.get_user_by_nickname(word);
         if (targetUser) {
-            if (targetUser->visible || user->visible || targetUser == user) {
+            if (targetUser->visible || user->isServerOperator || targetUser == user) {
                 std::string msg = RPL_WHOISUSER(user, targetUser) + RPL_WHOISSERVER(user, targetUser) + RPL_ENDOFWHOIS(user, targetUser);
                 send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
             }

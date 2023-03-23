@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   irc.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:19:21 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/23 01:28:01 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/23 17:35:52 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,7 @@ void	handshake(User *user);
 bool	isValidNickname( const std::string & nickname );
 bool	nickInUse( std::string nickToCheck, Server & srv );
 void	stream( int client_index, Server & srv );
-void	cap_cmd(std::istringstream *iss, std::string word);
-void	ls_cmd(User *user);
+void	cap_cmd(std::istringstream *iss, std::string word, User *user);
 void	pass_cmd(std::istringstream *iss, std::string *word, User *user, Server &srv);
 void	nick_cmd(std::istringstream *iss, std::string *word, User *user, Server &srv);
 void	user_cmd(std::istringstream *iss, std::string *word, User *user);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   NICK.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:46:24 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/23 01:22:38 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/23 17:38:34 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,23 +56,26 @@ void	nick_cmd(std::istringstream *iss, std::string *word, User *user, Server &sr
 	if (*iss >> *word) {
 		std::string str;
 		if ( nickInUse(*word,  srv)) {
-				str = ERR_NICKNAMEINUSE(user, *word);
+			str = ERR_NICKNAMEINUSE(user, *word);
+			send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
+		} else if (!isValidNickname(*word)) {
+			str = ERR_ERRONEUSNICKNAME(user);
+			send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
+		} else {
+			if (user->isUserSet) {
+				std::cerr << "SENT NICK MESSAGE" << std::endl;
+				str = NICK(user, *word);
+				std::cerr << str << std::endl;
 				send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
-				} else if (!isValidNickname(*word)) {
-					str = ERR_ERRONEUSNICKNAME(user);
-					send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
-				} else {
-					if (user->isUserSet) {
-						std::cerr << "SENT NICK MESSAGE" << std::endl;
-						str = NICK(user, *word);
-						std::cerr << str << std::endl;
-						send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
-					}
-					user->setNick(*word);			
-				}
-				if (user->getNick() != "$" && user->getRealName() != "$" && !user->isUserSet) {
-					user->isUserSet = true;
-					handshake(user);
-				}
 			}
+			user->setNick(*word);			
+		}
+		if (user->getNick() != "$" && user->getRealName() != "$" && !user->isUserSet) {
+			user->isUserSet = true;
+			handshake(user);
+		}
+	} else {
+		std::string msg = ERR_NEEDMOREPARAMS(user, "NICK");
+		send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+	}
 }

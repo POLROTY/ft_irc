@@ -15,5 +15,8 @@ void	who_cmd(std::istringstream *iss, std::string *word, User *user, Server &srv
                 send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
             }
         }
+	} else {
+		std::string msg = ERR_NEEDMOREPARAMS(user, "WHO");
+		send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 	}
 }

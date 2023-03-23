@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EXECUTE.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:52:22 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/23 01:59:19 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/23 17:35:24 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,8 @@ void stream( int client_index, Server & srv ) {
 	if (iss >> word) {
 		
 		if ( word == "CAP" && !user->isPasswordChecked ) {
-			cap_cmd(&iss, word);
-			if ( word == "LS" )
-				ls_cmd(user);
+			cap_cmd(&iss, word, user);
+			
 		} else if ( word == "PASS" ) {
 			pass_cmd(&iss, &word, user, srv);
 		} else if ( !user->isPasswordChecked ) {

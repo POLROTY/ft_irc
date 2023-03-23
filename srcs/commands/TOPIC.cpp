@@ -31,5 +31,8 @@ void	topic_cmd(std::istringstream *iss, std::string word, User *user, Server &sr
 			std::string msg = ERR_NOSUCHCHANNEL(user, word);
 			send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 		}
+	} else {
+		std::string msg = ERR_NEEDMOREPARAMS(user, "TOPIC");
+		send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 	}
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PASS.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
+/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/21 15:53:07 by nfascia           #+#    #+#             */
-/*   Updated: 2023/03/21 15:53:09 by nfascia          ###   ########.fr       */
+/*   Updated: 2023/03/23 17:41:23 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,5 +25,8 @@ void	pass_cmd(std::istringstream *iss, std::string *word, User *user, Server &sr
 				std::string msg = ERR_PASSWDMISMATCH(user);
 				send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 			}
+	} else {
+		std::string msg = ERR_NEEDMOREPARAMS(user, "PASS");
+		send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 	}
 }

@@ -9,7 +9,6 @@ SRC			= main.cpp \
 			  commands/EXECUTE.cpp \
 			  commands/NICK.cpp \
 			  commands/CAP.cpp \
-			  commands/LS.cpp \
 			  commands/PASS.cpp \
 			  commands/USER.cpp \
 			  commands/PING.cpp \

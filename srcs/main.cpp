@@ -14,7 +14,7 @@ int main(int argc, char **argv){
 		return (EXIT_FAILURE);
 	}
 	std::cout << "socket is : " << listening << std::endl;
-	Server *srv = new Server("localhost", argv[2], listening);	
+	Server *srv = new Server(HOSTNAME, argv[2], listening);	
 	Server::instance = srv;
 
 	if (srv->bind_and_listen( listening, atoi(argv[1])) == EXIT_FAILURE)

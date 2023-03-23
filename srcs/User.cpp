@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:22:40 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/22 16:51:29 by nfascia          ###   ########.fr       */
+/*   Updated: 2023/03/23 01:12:28 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,8 +130,12 @@ void User::update_modes(const std::string& mode_changes) {
                 case 'i':  // user visible
                     if (add_mode) {
                         this->visible = false;
+						std::string msg1 = ":" + this->getHost()+ " 221 " + this->getNick() + " +i\r\n"; 
+						send(this->getFd(), msg1.c_str(), msg1.length(), MSG_NOSIGNAL);
                     } else {
                         this->visible = true;
+						std::string msg1 = ":" + this->getHost()+ " 221 " + this->getNick() + " -i\r\n"; 
+						send(this->getFd(), msg1.c_str(), msg1.length(), MSG_NOSIGNAL);
                     }
                     break;
 					

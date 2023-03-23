@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:08:36 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/22 16:14:14 by hspriet          ###   ########.fr       */
+/*   Updated: 2023/03/23 01:34:28 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ class Server {
 		////////// getters //////////
 		std::string 					getPassword( void ) const;
 		std::string 					getHostName( void ) const;
+		std::string 					getStartDate( void ) const;
 		int								getSocket( void ) const;
 		int								getClientNbr( void ) const;
 		
@@ -80,6 +81,7 @@ class Server {
 		int				_clientNbr;
 		pollfd			*_poll_fds;
 		int				is_running;
+		std::string		_startDate;
 };
 
 

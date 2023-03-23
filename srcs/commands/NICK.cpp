@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   NICK.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfascia <nathanfascia@gmail.com>           +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:46:24 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/21 15:46:06 by nfascia          ###   ########.fr       */
+/*   Updated: 2023/03/23 01:22:38 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,10 +56,8 @@ void	nick_cmd(std::istringstream *iss, std::string *word, User *user, Server &sr
 	if (*iss >> *word) {
 		std::string str;
 		if ( nickInUse(*word,  srv)) {
-				user->setNick(*word);
-				str = ERR_NICKNAMEINUSE(user);
+				str = ERR_NICKNAMEINUSE(user, *word);
 				send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);
-				user->setNick("$");	
 				} else if (!isValidNickname(*word)) {
 					str = ERR_ERRONEUSNICKNAME(user);
 					send(user->getFd(), str.c_str(), str.length(), MSG_NOSIGNAL);

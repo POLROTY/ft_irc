@@ -5,23 +5,23 @@
 
 
 // HAND SHAKE
-#define RPL_WELCOME(user) (":" + user->getNick() + " 001 " + user->getNick() + " :Welcome to the IRC Network " + user->getName() + "\n")
-#define RPL_YOURHOST(user) (":" + user->getNick() + " 002 :Your host is " + user->getHost() + ", running version 4.2\n")
-#define RPL_CREATED(user) (":" + user->getNick() + " 003 :This server was created  Tue Feb 14 2023 at 12:34:56 UTC\n")
-#define RPL_MYINFO(user) (":" + user->getNick() + " 004 : " + user->getHost() + " 42 io iob\n")
+#define RPL_WELCOME(user) (":" + user->getHost() + " 001 " + user->getNick() + " Welcome to the IRC Network " + user->getName() + "\n")
+#define RPL_YOURHOST(user) (":" + user->getHost() + " 002 " + user->getNick() + " Your host is " + Server::instance->getHostName() + ", running version 4.2\n")
+#define RPL_CREATED(user) (":" + user->getHost() + " 003 " + user->getNick() + " This server was created " + Server::instance->getStartDate() + "\n")
+#define RPL_MYINFO(user) (":" + user->getHost() + " 004 " + user->getNick() + " " + Server::instance->getHostName() + " v4.2 io iob\n")
 
 
 // PING
-#define PONG(user) (":" + user->getName() + " PONG " + user->getHost() + "\r\n")
+#define PONG(user) (":" + user->getHost() + " PONG :" + user->getNick() + "\r\n")
 
 // PASS
 #define ERR_PASSWDMISMATCH(user) (":" + user->getName() + " 464 " + user->getNick() + " :" + user->getHost() + " PASSWORD MISSMATCH\n")
 
 
 // NICK
-#define NICK(user, newNick) (":" + user->getNick() + " NICK " + newNick + "\r\n")
-#define ERR_NICKNAMEINUSE(user) (":NICKSERVER 433 * " + user->getNick() + " :Nickname is already in use.\r\n")
-#define ERR_ERRONEUSNICKNAME(user) ("432 " + user->getNick() + " :Erroneous nickname\r\n")
+#define NICK(user, newNick) (":" + user->getHost() + " NICK " + newNick + "\r\n")
+#define ERR_NICKNAMEINUSE(user, nick) (":" + user->getHost() + " 433 " + user->getNick() + " " + nick + " :Nickname is already in use.\r\n")
+#define ERR_ERRONEUSNICKNAME(user) (":" + user->getHost() + " 432 " + user->getNick() + " :Erroneous nickname\r\n")
 #define RPL_WHOISUSER(requester, target) (":" + (requester)->getName() + " 311 " + (requester)->getNick() + " " + (target)->getNick() + " " + (target)->getName() + " " + (target)->getHost() + " * :" + (target)->getRealName() + "\r\n")
 #define RPL_WHOISSERVER(requester, target) (":" + (requester)->getName() + " 312 " + (requester)->getNick() + " " + (target)->getNick() + " " + (requester)->getName() + " :This server\r\n")
 #define RPL_ENDOFWHOIS(requester, target) (":" + (requester)->getName() + " 318 " + (requester)->getNick() + " " + (target)->getNick() + " :End of /WHOIS list.\r\n")
@@ -35,7 +35,7 @@
 #define ERR_USERSDONTMATCH(user) (":" + (user)->getName() + " 502 " + (user)->getNick() + " :Cannot change mode for other users\r\n")
 
 // UNKNOWN
-#define ERR_NOTIMPLEMENTED(word) (": 449 : " + word + " command not implemented\n")
+#define ERR_NOTIMPLEMENTED(word) (":" + user->getHost() + " 449 : " + word + " command not implemented\n")
 
 // CHAN
 #define PRIVMSGCHAN(sender, recv, word) (": " + user->getName() + " PRIVMSG " + recv->getNick() + " :" + word + "\r\n")

@@ -1,4 +1,5 @@
 NAME		= ircserv
+HOSTNAME	= $(shell hostname)
 
 SRC			= main.cpp \
 			  User.cpp \
@@ -26,6 +27,8 @@ SRC			= main.cpp \
 			  commands/NOTICE.cpp \
 			  commands/QUIT.cpp 
 
+PROGRAMVAR		:= -DHOSTNAME=\"$(HOSTNAME)\"
+
 SRCSPATH 	= srcs
 
 DEPS		= {SRCS:.cpp=.d}
@@ -48,7 +51,7 @@ $(OBJDIR)/%.o: $(SRCSPATH)/%.cpp
 	@printf "$(_ORANGE)Compiling : %s\n" $<
 	@mkdir -p $(OBJDIR)
 	@mkdir -p $(OBJDIR)/commands/
-	@$(CC) $(CFLAGS) -I $(INCLUDES) -c $< -o $@
+	@$(CC) $(CFLAGS) -I $(INCLUDES) $(PROGRAMVAR) -c $< -o $@
 
 all: ${NAME}
 

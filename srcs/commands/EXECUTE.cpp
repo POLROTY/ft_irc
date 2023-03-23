@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EXECUTE.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:52:22 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/22 15:45:29 by hspriet          ###   ########.fr       */
+/*   Updated: 2023/03/23 01:59:19 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,14 @@
 
 void handshake(User *user) {
 
-	user->printInfo();
-    send(user->getFd(), RPL_WELCOME(user).c_str(), RPL_WELCOME(user).length(), MSG_NOSIGNAL);
-	send(user->getFd(), RPL_YOURHOST(user).c_str(), RPL_YOURHOST(user).length(), MSG_NOSIGNAL);
-	send(user->getFd(), RPL_CREATED(user).c_str(), RPL_CREATED(user).length(), MSG_NOSIGNAL);
-	send(user->getFd(), RPL_MYINFO(user).c_str(), RPL_MYINFO(user).length(), MSG_NOSIGNAL);
-	send(user->getFd(), NICK(user, user->getNick() ).c_str(), NICK(user, user->getNick() ).length(), MSG_NOSIGNAL);
+	std::string msg = RPL_WELCOME(user) + RPL_YOURHOST(user) + RPL_CREATED(user) + RPL_MYINFO(user);
+
+	std::cerr << std::endl << ">" << msg << std::endl << std::endl;
+	send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+	std::string msg1 = ":" + user->getHost()+ " 375 " + user->getNick() + " :- message of the day : IRC c b1, dormir c mieuuu -\r\n" +
+						":" + user->getHost() + " 376 " + user->getNick() + " :End of MOTD command\r\n";
+	send(user->getFd(), msg1.c_str(), msg1.length(), MSG_NOSIGNAL);
+	
 
 }
 

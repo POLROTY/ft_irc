@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   irc.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:19:21 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/22 15:44:48 by hspriet          ###   ########.fr       */
+/*   Updated: 2023/03/23 01:28:01 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,11 @@
 #include <algorithm>
 #include <csignal>
 
+////////// TRUC MARRANT ////////// 
+
+#ifndef HOSTNAME
+# define HOSTNAME "localhost"
+#endif
 
 ////////// CLASS ////////// 
 

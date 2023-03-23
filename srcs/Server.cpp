@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hspriet <hspriet@student.42.fr>            +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/22 17:34:52 by hspriet          ###   ########.fr       */
+/*   Updated: 2023/03/23 01:38:07 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,11 @@ Server::Server( std::string const hostName, std::string const password, int fd )
 	this->_adminUsername = "ADMIN";
 	this->_adminPassword = "ADMIN";
 	this->is_running = true;
+	
+	time_t      stime = time(NULL);
+    struct tm   *transTime;
+    transTime = localtime(&stime);
+	this->_startDate = std::string(asctime(transTime));
 	return;
 }
 
@@ -136,6 +141,11 @@ int	Server::bind_and_listen( int listening, int port ) {
 		return (EXIT_FAILURE);
 	}
 	return (0);
+}
+
+std::string Server::getStartDate(void) const
+{
+	return this->_startDate;
 }
 
 void Server::send_private_message(const std::string& sender_nickname, const std::string& recipient_nickname, const std::string& message) {

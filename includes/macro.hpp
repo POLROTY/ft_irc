@@ -45,8 +45,9 @@
 #define ERR_NOTONCHANNEL(user, channel) ( ":" + user->getHost() + " 442 " + user->getNick() + " " + channel + " :You're not on that channel" + "\n" )
 #define RPL_ADDEDCHANOPER(user, channel) (":" + (user)->getName() + " 482 " + (user)->getNick() + " " + (channel) + " :You have been added as a channel operator\n")
 #define RPL_REMOVEDCHANOPER(user, channel) (":" + (user)->getName() + " 482 " + (user)->getNick() + " " + (channel) + " :You have been removed as a channel operator\n")
-#define ERR_BANNEDFROMCHAN(user, channel) ( ":" + user->getName() + " 474 " + user->getNick() + " " + channel->getName() + " :You are banned from this channel\n" )
+#define ERR_BANNEDFROMCHAN(user, channel) ( ":" + user->getHost() + " 474 " + user->getNick() + " " + channel->getName() + " :Cannot join " + channel->getName() + " (+b) - you are banned\n" )
 #define RPL_UNBANUSER(user, channel) (":" + user->getName() + " MODE " + channel->getName() + " -b " + user->getNick() + " : You have been unbanned from this channel\r\n")
+#define ERR_NEEDINVITE(user, channel) ( ":" + user->getHost() + " 473 " + user->getNick() + " " + channel->getName() + " :Cannot join " + channel->getName() + " (+i) - you must be invited\n" )
 
 //TOPIC
 #define RPL_TOPIC(user, channel, topic) (":" + (user)->getName() + " 332 " + (user)->getNick() + " " + (channel) + " :" + (topic) + "\n")

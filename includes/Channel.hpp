@@ -31,6 +31,7 @@ public:
     bool is_operator(User *user) const;
     bool is_operator_empty( void ) const;
     bool isBanned(User *user);
+	bool isInvited(User *user);
     
     ///////// setters /////////
     void join(User *user);
@@ -51,6 +52,10 @@ public:
     std::string who(User *requester);
 	void 		invite(User *user, User *targetUser);
 	void		kick(User *source, User *target, const std::string &reason);
+	
+	bool isInviteOnly;
+	void modeInvite(User *user);
+	void unModeInvite(User *user);
 
 private:
 
@@ -62,6 +67,7 @@ private:
     std::vector<User*> users;
     std::vector<User*> operators;
     std::vector<User*> bannedUsers;
+	std::vector<User*> invitedUsers;
 
 	
 };

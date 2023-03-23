@@ -14,6 +14,7 @@ Channel::Channel( const std::string & name, User * user) : name(name) {
 	operators.push_back( user ); // Add the first user as an operator
 	std::string info = ":" + user->getName() + " JOIN " + name + "\r\n";
     broadcast_info(info);
+	this->isInviteOnly = false;;
 }
 
 Channel::Channel(const Channel &other) {
@@ -111,6 +112,13 @@ bool Channel::has_user(User* user) const {
 	return false;
 }
 
+// Check if a user is invited to the channel
+bool Channel::isInvited(User* user) {
+	if (user)
+    	return std::find(invitedUsers.begin(), invitedUsers.end(), user) != invitedUsers.end();
+	return false;
+}
+
 // Check if a user is an operator in the channel
 bool Channel::is_operator(User* user) const {
     return std::find(operators.begin(), operators.end(), user) != operators.end();
@@ -140,8 +148,26 @@ void Channel::set_topic( std::string new_topic ) {
 
 // Add a user to the channel
 void Channel::join(User* user) {
+	if (this->isInviteOnly) {
+		// If the user is invited, remove them from the invited list 
+    invitedUsers.erase(std::remove(invitedUsers.begin(), invitedUsers.end(), user), invitedUsers.end());
+	}
     users.push_back(user);
     std::string info = ":" + user->getName() + " JOIN " + name + "\r\n";
+	std::cerr << std::endl << info << std::endl << std::endl;
+    broadcast_info(info);
+}
+
+void Channel::modeInvite(User *user) {
+	this->isInviteOnly = true;
+	std::string info = ":" + user->getName() + " sets mode +i " + name + "\r\n";
+	std::cerr << std::endl << info << std::endl << std::endl;
+    broadcast_info(info);
+}
+
+void Channel::unModeInvite(User *user) {
+	this->isInviteOnly = false;
+	std::string info = ":" + user->getName() + " sets mode -i " + name + "\r\n";
 	std::cerr << std::endl << info << std::endl << std::endl;
     broadcast_info(info);
 }
@@ -176,6 +202,13 @@ void Channel::update_modes(const std::string& mode_changes, User * user) {
                         std::cerr << std::endl << user->getNick() << "was unbanned" << std::endl << std::endl;
                     }
                     break;
+				case 'i':  // channel IRC ban mode
+                    if (add_mode) {
+                        modeInvite(user);
+                    } else {
+                        unModeInvite(user);
+                    }
+                    break;
                 // ... handle other user modes ...
                 default:
                     // Ignore unsupported or unknown modes
@@ -205,6 +238,7 @@ void Channel::add_to_ban(User * user) {
     std::string msg = ERR_BANNEDFROMCHAN(user, this);
     send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 
+    users.erase(std::remove(users.begin(), users.end(), user), users.end());
     // If the user is an operator, remove them from the operators list as well
     operators.erase(std::remove(operators.begin(), operators.end(), user), operators.end());
     std::string info = ":" + user->getName() + " BAN " + name + "\r\n";
@@ -278,8 +312,16 @@ void Channel::invite(User *user, User *targetUser) {
 	if (has_user(targetUser)) {
 		std::string msg = ERR_USERONCHANNEL(user, targetUser->getNick(), getName());
 		send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-	} else {
+	} else if (!isInvited(targetUser)) {
+		if (isBanned(targetUser))
+			bannedUsers.erase(std::remove(bannedUsers.begin(), bannedUsers.end(), user), bannedUsers.end());
+		std::string msg1 = ":" + user->getHost() + " 443 " + user->getNick() + " " + getName() + ":" + targetUser->getNick() + " has been invited to join " + getName() + "\n";
+		send(targetUser->getFd(), msg1.c_str(), msg1.length(), MSG_NOSIGNAL);
 		std::string msg = ":" + user->getName() + " INVITE " + targetUser->getNick() + " " + getName() + "\n";
+		send(targetUser->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
+		invitedUsers.push_back(targetUser);
+	} else {
+		std::string msg = ":" + user->getHost() + " 443 " + user->getNick() + " " + getName() + ":" + targetUser->getNick() + " has already been invited to join " + getName() + "\n";
 		send(targetUser->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 	}
 }

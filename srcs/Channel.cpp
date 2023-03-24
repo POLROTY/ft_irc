@@ -46,7 +46,8 @@ void Channel::broadcast(const std::string& message, User* sender) {
 
 
 		// Format the message according to the IRC protocol
-		std::string formatted_message = ":" + sender->getName() + " PRIVMSG " + name + " :" + message + "\r\n";
+		std::string formatted_message = ":" + sender->getName() + " PRIVMSG " + name + message + "\r\n";
+        std::cerr << "|" << message << std::endl; 
 		
 		if (user != sender && user->isAlive) {
 			send(user->getFd(), formatted_message.c_str(), formatted_message.size(), MSG_NOSIGNAL);

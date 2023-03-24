@@ -19,7 +19,7 @@ void	kill_cmd(std::istringstream *iss, User *user, Server &srv) {
 			if (user->isServerOperator) {
 				std::string msg = ERR_YOUDEAD(targetUser, user);
 				send(targetUser->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-				targetUser->isAlive = false;
+				quit_cmd(targetUser, srv);
 			} else {
 				std::string msg = ERR_NOPRIVILEGES(user);
 				send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);

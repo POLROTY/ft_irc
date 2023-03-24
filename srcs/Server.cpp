@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 15:09:26 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/23 18:30:02 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/24 14:07:40 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,10 +151,9 @@ std::string Server::getStartDate(void) const
 void Server::send_private_message(User *user, const std::string& recipient_nickname, const std::string& message) {
     User* recipient = get_user_by_nickname(recipient_nickname);
 
-	
     if (recipient) {
       if (recipient->isAlive) {
-        std::string formatted_message = ":" + user->getName() + " PRIVMSG " + recipient->getNick() + " :" + message + "\r\n";
+        std::string formatted_message = ":" + user->getName() + " PRIVMSG " + recipient->getNick() + message + "\r\n";
         send(recipient->getFd(), formatted_message.c_str(), formatted_message.size(), MSG_NOSIGNAL);
       } else {
         std::string msg = ERR_NOSUCHNICK(user, recipient_nickname);

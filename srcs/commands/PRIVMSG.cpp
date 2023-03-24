@@ -15,12 +15,13 @@ void	privmsg_cmd(std::istringstream *iss, std::string word, User *user, Server &
 					send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 					return;
 				}
+				getline(*iss, word, ':');
 				std::string message;
 				getline(*iss, message); // Read the rest of the message
 				// Remove any trailing newline characters from the message
 				message.erase(std::remove(message.begin(), message.end(), '\n'), message.end());
 				message.erase(std::remove(message.begin(), message.end(), '\r'), message.end());
-				(*it)->broadcast(message, user);
+				(*it)->broadcast(word + message, user);
 			} else {
 				std::string msg = ERR_NOSUCHCHANNEL(user, word);
 				send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
@@ -28,6 +29,7 @@ void	privmsg_cmd(std::istringstream *iss, std::string word, User *user, Server &
 		} else {
 				// The target is a user nickname
 				std::string receiver_nickname = word;
+				getline(*iss, word, ':');
 				std::string message;
 				getline(*iss, message); // Read the rest of the message
 				// Remove any trailing newline characters from the message

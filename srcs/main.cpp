@@ -20,6 +20,6 @@ int main(int argc, char **argv){
 	if (srv->bind_and_listen( listening, atoi(argv[1])) == EXIT_FAILURE)
 		return (delete srv, EXIT_FAILURE);
 	if (srv->server_loop() == EXIT_FAILURE)
-		return (EXIT_FAILURE);
+		return (delete srv, EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }

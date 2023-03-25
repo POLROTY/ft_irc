@@ -24,6 +24,7 @@ SRC			= main.cpp \
 			  commands/MODE.cpp \
 			  commands/PRIVMSG.cpp \
 			  commands/NOTICE.cpp \
+			  commands/BOT.cpp \
 			  commands/QUIT.cpp 
 
 PROGRAMVAR		:= -DHOSTNAME=\"$(HOSTNAME)\"

@@ -22,7 +22,7 @@ void	mode_cmd(std::istringstream *iss, User *user, Server &srv) {
 						User * target_user = channel->find_user_by_nickname(target_user_nick);
 						if (target_user || channel->isBanned(srv.get_user_by_nickname(target_user_nick))) {
 							std::cerr << "Found target " << target_user_nick << std::endl;
-							channel->update_modes(mode_changes, srv.get_user_by_nickname(target_user_nick));
+							channel->update_modes(mode_changes, srv.get_user_by_nickname(target_user_nick), user);
 							if (channel->is_operator_empty())
 								srv.remove_channel(channel);
 						} else {
@@ -30,7 +30,7 @@ void	mode_cmd(std::istringstream *iss, User *user, Server &srv) {
 							send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 						}
 					} else {
-						channel->update_modes(mode_changes, user);
+						channel->update_modes(mode_changes, user, user);
 					}
 				} else {
 					std::string msg = ERR_CHANOPRIVSNEEDED(user, target);

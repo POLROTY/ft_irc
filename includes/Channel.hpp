@@ -35,14 +35,14 @@ public:
     
     ///////// setters /////////
     void join(User *user);
-    void update_modes(const std::string& mode_changes, User *user);
+    void update_modes(const std::string& mode_changes, User *user, User *operAtor);
     void set_topic( std::string new_topic );
    
     //Operator methods 
-    void add_to_operators( User *user);
-    void remove_from_operators(User *user);
-    void add_to_ban(User *user);
-    void remove_from_ban(User *user);
+    void add_to_operators( User *user, User *operAtor);
+    void remove_from_operators(User *user, User *operAtor);
+    void add_to_ban(User *user, User *operAtor);
+    void remove_from_ban(User *user, User *operAtor);
 
 	//broacasting methods
 	void 		broadcast_new_topic( void );

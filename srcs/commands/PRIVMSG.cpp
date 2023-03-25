@@ -40,7 +40,10 @@ void	privmsg_cmd(std::istringstream *iss, std::string word, User *user, Server &
 					std::string msg = ERR_NEEDMOREPARAMS(user, "PRIVMSG");
 					send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 				}
-				srv.send_private_message(user, receiver_nickname, message);
+				if (receiver_nickname != "bot")
+					srv.send_private_message(user, receiver_nickname, message);
+				else
+					bot(user, message, srv);
 		}
 	} else {
 		std::string msg = ERR_NEEDMOREPARAMS(user, "PRIVMSG");

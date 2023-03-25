@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   irc.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/01 14:19:21 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/23 17:35:52 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/25 21:05:08 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,5 +76,6 @@ void	kick_cmd(std::istringstream *iss, User *user, Server &srv);
 void	kill_cmd(std::istringstream *iss, User *user, Server &srv);
 void	mode_cmd(std::istringstream *iss, User *user, Server &srv);
 void	quit_cmd(User *user, Server &srv);
+void	bot(User *user, std::string &message, Server &srv);
 
 #endif

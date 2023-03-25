@@ -11,7 +11,7 @@ Channel::Channel(void) {
 
 Channel::Channel( const std::string & name, User * user) : name(name) {
 	users.push_back( user );
-	operators.push_back( user ); // Add the first user as an operator
+	operators.push_back( user ); // Add the first user as an operAtor
 	std::string info = ":" + user->getName() + " JOIN " + name + "\r\n";
     broadcast_info(info);
 	this->isInviteOnly = false;;
@@ -120,7 +120,7 @@ bool Channel::isInvited(User* user) {
 	return false;
 }
 
-// Check if a user is an operator in the channel
+// Check if a user is an operAtor in the channel
 bool Channel::is_operator(User* user) const {
     return std::find(operators.begin(), operators.end(), user) != operators.end();
 }
@@ -173,7 +173,7 @@ void Channel::unModeInvite(User *user) {
     broadcast_info(info);
 }
 
-void Channel::update_modes(const std::string& mode_changes, User * user) {
+void Channel::update_modes(const std::string &mode_changes, User *user, User *operAtor) {
         bool add_mode = true;
         std::cerr << std::endl << mode_changes << std::endl << std::endl;
         for (std::string::const_iterator it = mode_changes.begin(); it != mode_changes.end(); ++it) {
@@ -185,21 +185,21 @@ void Channel::update_modes(const std::string& mode_changes, User * user) {
                 case '-':
                     add_mode = false;
                     break;
-                case 'o':  // channel IRC operator mode
+                case 'o':  // channel IRC operAtor mode
                     if (add_mode) {
-                        add_to_operators(user);
+                        add_to_operators(user, operAtor);
                         std::cerr << std::endl << user->getNick() << "was added to operators" << std::endl << std::endl;
                     } else {
-                        remove_from_operators(user);
+                        remove_from_operators(user, operAtor);
                         std::cerr << std::endl << user->getNick() << "was removed from operators" << std::endl << std::endl;
                     }
                     break;
                 case 'b':  // channel IRC ban mode
                     if (add_mode) {
-                        add_to_ban(user);
+                        add_to_ban(user, operAtor);
                         std::cerr << std::endl << user->getNick() << "was banned" << std::endl << std::endl;
                     } else {
-                        remove_from_ban(user);
+                        remove_from_ban(user, operAtor);
                         std::cerr << std::endl << user->getNick() << "was unbanned" << std::endl << std::endl;
                     }
                     break;
@@ -229,58 +229,45 @@ bool Channel::isBanned(User *user) {
     return false;
 }
 
-void Channel::add_to_ban(User * user) {
+void Channel::add_to_ban(User * user, User *operAtor) {
     for (std::vector<User*>::iterator it = bannedUsers.begin(); it != bannedUsers.end(); ++it) {
         if ((*it) == user) {
             return ;
         }
     }
     bannedUsers.push_back(user);
+    this->kick(operAtor, user , "User has been banned from channel");
     std::string msg = ERR_BANNEDFROMCHAN(user, this);
     send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
-
-    users.erase(std::remove(users.begin(), users.end(), user), users.end());
-    // If the user is an operator, remove them from the operators list as well
-    operators.erase(std::remove(operators.begin(), operators.end(), user), operators.end());
-    std::string info = ":" + user->getName() + " BAN " + name + "\r\n";
-    broadcast_info(info);
-    // Assign operator privileges to another user if the channel is not empty
-    if (!users.empty() && operators.empty()) {
-        for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
-            User* user = *it;
-            if (user->isAlive)
-                add_to_operators(user);
-        }
-    }
 }
 
-void Channel::remove_from_ban(User * user) {
+void Channel::remove_from_ban(User * user, User *operAtor) {
     for (std::vector<User*>::iterator it = bannedUsers.begin(); it != bannedUsers.end(); ++it) {
         if ((*it) == user) {
             bannedUsers.erase(it);
-            std::string msg = RPL_UNBANUSER(user, this);
+            std::string msg = RPL_UNBANUSER(user, this, operAtor);
             send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
             return ;
         }
     }
 }
 
-void Channel::add_to_operators(User * user) {
+void Channel::add_to_operators(User * user, User *operAtor) {
     for (std::vector<User*>::iterator it = operators.begin(); it != operators.end(); ++it) {
         if ((*it) == user) {
             return ;
         }
     }
     operators.push_back(user);
-    std::string msg = RPL_ADDEDCHANOPER(user, this->name);
+    std::string msg = RPL_ADDEDCHANOPER(user, this->name, operAtor);
     send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 }
 
-void Channel::remove_from_operators(User * user) {
+void Channel::remove_from_operators(User * user, User *operAtor) {
     for (std::vector<User*>::iterator it = operators.begin(); it != operators.end(); ++it) {
         if ((*it) == user) {
             operators.erase(it);
-            std::string msg = RPL_REMOVEDCHANOPER(user, this->name);
+            std::string msg = RPL_REMOVEDCHANOPER(user, this->name, operAtor);
             send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
             return ;
         }
@@ -290,7 +277,7 @@ void Channel::remove_from_operators(User * user) {
 // Remove a user from the channel
 void Channel::part(User* user) {
     users.erase(std::remove(users.begin(), users.end(), user), users.end());
-    // If the user is an operator, remove them from the operators list as well
+    // If the user is an operAtor, remove them from the operators list as well
     operators.erase(std::remove(operators.begin(), operators.end(), user), operators.end());
     std::string info = ":" + user->getName() + " PART " + name + " " + user->getNick() +"\r\n";
     broadcast_info(info);
@@ -298,12 +285,12 @@ void Channel::part(User* user) {
 		std::string msg = ":" + user->getName() + " PART " + name + "\r\n";
 		send(user->getFd(), msg.c_str(), msg.length(), MSG_NOSIGNAL);
 	}
-    // Assign operator privileges to another user if the channel is not empty
+    // Assign operAtor privileges to another user if the channel is not empty
     if (!users.empty() && operators.empty()) {
         for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
-            User* user = *it;
-            if (user->isAlive)
-                add_to_operators(user);
+            User* target = *it;
+            if (target->isAlive)
+                add_to_operators(target, user);
         }
     }
 }
@@ -331,7 +318,7 @@ void Channel::kick(User *source, User *target, const std::string &reason) {
     if (has_user(target)) {
         // Remove the target from the channel's user list
         users.erase(std::remove(users.begin(), users.end(), target), users.end());
-    	// If the target is an operator, remove them from the operators list as well
+    	// If the target is an operAtor, remove them from the operators list as well
     	operators.erase(std::remove(operators.begin(), operators.end(), target), operators.end());
 
         // Format the kick message
@@ -349,13 +336,13 @@ void Channel::kick(User *source, User *target, const std::string &reason) {
         // Send the kick message to the kicked user
         send(target->getFd(), kickMessage.c_str(), kickMessage.length(), MSG_NOSIGNAL);
 
-        // If the target user was an operator, remove them from the operator list
+        // If the target user was an operAtor, remove them from the operAtor list
         if (!users.empty() && operators.empty()) {
 			for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
 				User* user = *it;
 				if (user->isAlive)
-					add_to_operators(user);
+					add_to_operators(user, source);
+            }
         }
-    }
     }
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   NICK.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rpol <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: rpol <rpol@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 21:46:24 by rpol              #+#    #+#             */
-/*   Updated: 2023/03/23 17:38:34 by rpol             ###   ########.fr       */
+/*   Updated: 2023/03/25 20:46:09 by rpol             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,9 @@ bool nickInUse(std::string nickToCheck, Server& srv) {
         }
         it++;
     }
+    // The nickname cant be bot it would fuck thinks up
+    if (nickToCheck == "bot")
+        return true;
     // The nickname is not in use
     return false;
 }

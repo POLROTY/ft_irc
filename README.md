@@ -19,11 +19,9 @@ To install this IRC Server, follow these steps:
 ## Usage
 To use this IRC Server, you will need an IRC client, such as irssi. Here are the steps to connect:
 
-1. Open your IRC client and enter the following command: `/connect localhost 6667 password`
+1. Open your IRC client and enter the following command: `/connect host portNumber password`
 2. Once you are connected, you can join channels using the JOIN command, send messages using the PRIVMSG command, and more.
-3. For the bot usage: `/msg bot message`
-3. To send a file to an irssi client : `/dcc send <nickname> <path><filename>`
-4. To accept a file transfer from an irssi client: `/dcc get <nickname> <filename>`
+3. You can also use the script, it will launch the server and connect two irssi clients: `bash launch_irc.sh portNumber password`
 
 ## Commands
 
